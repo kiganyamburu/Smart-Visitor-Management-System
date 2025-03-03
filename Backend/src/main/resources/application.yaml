@@ -3,3 +3,14 @@ server:
 spring:
   application:
     name: svms
+  data:
+    mongodb:
+#      uri: ${MONGODB_URI}
+      uri: mongodb+srv://kinuthialawrence343:XelCjNKhYojwZVpB@cluster0.akvymy0.mongodb.net/svms
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+# swagger-ui custom path
+springdoc:
+  swagger-ui.path: /swagger-ui.html
