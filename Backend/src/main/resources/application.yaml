@@ -5,8 +5,8 @@ spring:
     name: svms
   data:
     mongodb:
-#      uri: ${MONGODB_URI}
-      uri: mongodb+srv://kinuthialawrence343:XelCjNKhYojwZVpB@cluster0.akvymy0.mongodb.net/svms
+      uri: ${MONGODB_URI}
+#      uri: mongodb+srv://kinuthialawrence343:XelCjNKhYojwZVpB@cluster0.akvymy0.mongodb.net/svms
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
