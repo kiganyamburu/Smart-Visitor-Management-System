@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -28,6 +27,5 @@ public class Visitor {
     private Date checkInTime;
     private Date checkOutTime;
     private Status status;
-//    @DBRef
     private String hostId;
 }
