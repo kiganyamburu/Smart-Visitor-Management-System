@@ -12,7 +12,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/v1/admin")
 public class AdminController {
     @Autowired
     private AdminServiceImplementation service;
@@ -38,7 +38,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/{id}")
-    public boolean deleteAdmin(@PathVariable("id") String id) {
-        return service.deleteAdmin(id);
+    public ResponseEntity<Boolean> deleteAdmin(@PathVariable("id") String id) {
+        return ResponseEntity.ok(service.deleteAdmin(id));
     }
 }

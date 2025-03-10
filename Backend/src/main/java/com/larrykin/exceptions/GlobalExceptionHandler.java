@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@ControllerAdvice //define global exception handler
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
