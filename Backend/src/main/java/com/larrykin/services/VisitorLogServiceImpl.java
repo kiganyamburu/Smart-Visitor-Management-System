@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.VisitorLog;
+import com.larrykin.model.VisitorLog;
 import com.larrykin.exceptions.VisitorLogNotFoundException;
 import com.larrykin.repositories.VisitorLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;

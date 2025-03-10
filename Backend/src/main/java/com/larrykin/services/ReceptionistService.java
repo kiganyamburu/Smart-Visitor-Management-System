@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.Receptionist;
+import com.larrykin.model.Receptionist;
 
 import java.util.List;
 

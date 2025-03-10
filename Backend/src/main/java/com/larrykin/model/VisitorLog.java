@@ -1,4 +1,4 @@
-package com.larrykin.entity;
+package com.larrykin.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

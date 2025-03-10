@@ -1,4 +1,4 @@
-package com.larrykin.entity;
+package com.larrykin.model;
 
 import com.larrykin.enums.AssignedLocation;
 import jakarta.validation.constraints.Email;
@@ -12,11 +12,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Receptionist {
     @Id
     private String receptionistId;
-    @NotBlank
+    @NotBlank(message = "FullName Cannot be blank")
     private String fullName;
-    @Email
+    @Email(message = "Should be an email")
     private String email;
-    @NotBlank
+    @NotBlank(message = "Phone number cannot be blank")
     private String phoneNumber;
     private AssignedLocation assignedLocation;
 }

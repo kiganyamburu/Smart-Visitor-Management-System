@@ -1,4 +1,4 @@
-package com.larrykin.entity;
+package com.larrykin.model;
 
 import com.larrykin.enums.NotificationStatus;
 import com.larrykin.enums.Type;

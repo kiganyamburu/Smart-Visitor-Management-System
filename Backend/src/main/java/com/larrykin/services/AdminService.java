@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.Admin;
+import com.larrykin.model.Admin;
 
 import java.util.List;
 

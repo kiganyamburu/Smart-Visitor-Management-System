@@ -1,7 +1,8 @@
 package com.larrykin.controllers;
 
-import com.larrykin.entity.Notification;
+import com.larrykin.model.Notification;
 import com.larrykin.services.NotificationServiceImplementation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/notification")
+@Tag(name="Notification", description = "Notification API's")
 public class NotificationController {
     @Autowired
     private NotificationServiceImplementation service;
@@ -25,7 +27,7 @@ public class NotificationController {
         return ResponseEntity.ok(service.getAllNotifications());
     }
 
-    @GetMapping("/{id?")
+    @GetMapping("/{id}")
     public ResponseEntity<Notification> findById(@PathVariable("id") String id) {
         return ResponseEntity.ok(service.getNotificationById(id));
     }

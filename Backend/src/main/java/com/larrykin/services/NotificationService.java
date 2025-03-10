@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.Notification;
+import com.larrykin.model.Notification;
 
 import java.util.List;
 

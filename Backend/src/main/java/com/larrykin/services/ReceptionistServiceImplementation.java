@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.Receptionist;
+import com.larrykin.model.Receptionist;
 import com.larrykin.exceptions.ReceptionistNotFoundException;
 import com.larrykin.repositories.ReceptionistRepository;
 import org.springframework.beans.factory.annotation.Autowired;

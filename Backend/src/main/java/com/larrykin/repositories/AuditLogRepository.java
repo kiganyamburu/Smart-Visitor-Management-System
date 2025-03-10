@@ -1,6 +1,6 @@
 package com.larrykin.repositories;
 
-import com.larrykin.entity.AuditLog;
+import com.larrykin.model.AuditLog;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

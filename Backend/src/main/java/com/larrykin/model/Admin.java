@@ -1,4 +1,4 @@
-package com.larrykin.entity;
+package com.larrykin.model;
 
 import com.larrykin.enums.Permissions;
 import com.larrykin.enums.Role;
@@ -12,9 +12,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Admin {
     @Id
     private String adminId;
-    @NotBlank
+    @NotBlank(message = "fullName cannot be blank")
     private String fullName;
-    @NotBlank
+    @NotBlank(message = "PhoneNumber cannot be blank")
     private String phoneNumber;
     private Role role;
     private Permissions permissions;

@@ -1,7 +1,8 @@
 package com.larrykin.controllers;
 
-import com.larrykin.entity.Host;
+import com.larrykin.model.Host;
 import com.larrykin.services.HostServiceImplementation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/host")
+@Tag(name="Host", description = "Host API's")
 public class HostController {
     @Autowired
     private HostServiceImplementation service;

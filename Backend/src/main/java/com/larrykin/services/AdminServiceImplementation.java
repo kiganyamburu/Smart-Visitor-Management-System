@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.Admin;
+import com.larrykin.model.Admin;
 import com.larrykin.exceptions.AdminNotFoundException;
 import com.larrykin.repositories.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;

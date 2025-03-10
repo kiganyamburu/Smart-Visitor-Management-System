@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.AuditLog;
+import com.larrykin.model.AuditLog;
 import com.larrykin.exceptions.AuditLogNotFoundException;
 import com.larrykin.repositories.AuditLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;

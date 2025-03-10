@@ -1,4 +1,4 @@
-package com.larrykin.entity;
+package com.larrykin.model;
 
 import com.larrykin.enums.Role;
 import jakarta.validation.constraints.Email;
@@ -14,11 +14,11 @@ import java.util.List;
 public class Host {
     @Id
     private String hostId;
-    @NotBlank
+    @NotBlank(message = "FullName cannot be null")
     private String fullName;
-    @Email
+    @Email(message = "Should be an email")
     private String email;
-    @NotBlank
+    @NotBlank(message = "PhoneNumber cannot be null")
     private String phoneNumber;
     private String department;
     private Role role;

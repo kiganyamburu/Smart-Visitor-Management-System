@@ -1,7 +1,8 @@
 package com.larrykin.controllers;
 
-import com.larrykin.entity.Admin;
+import com.larrykin.model.Admin;
 import com.larrykin.services.AdminServiceImplementation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin")
+@Tag(name="Admin", description = "Admin API's")
 public class AdminController {
     @Autowired
     private AdminServiceImplementation service;

@@ -1,7 +1,8 @@
 package com.larrykin.controllers;
 
-import com.larrykin.entity.VisitorLog;
+import com.larrykin.model.VisitorLog;
 import com.larrykin.services.VisitorLogServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/visitorlog")
+@Tag(name="VisitorLog", description = "VisitorLog API's")
 public class VisitorLogController {
     @Autowired
     private VisitorLogServiceImpl service;

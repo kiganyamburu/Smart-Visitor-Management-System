@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.AuditLog;
+import com.larrykin.model.AuditLog;
 
 import java.util.List;
 

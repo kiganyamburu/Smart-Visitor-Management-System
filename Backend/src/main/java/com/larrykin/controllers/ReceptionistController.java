@@ -1,7 +1,8 @@
 package com.larrykin.controllers;
 
-import com.larrykin.entity.Receptionist;
+import com.larrykin.model.Receptionist;
 import com.larrykin.services.ReceptionistServiceImplementation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/receptionist")
+@Tag(name="Reception", description = "Receptionist API's")
 public class ReceptionistController {
     @Autowired
     private ReceptionistServiceImplementation service;

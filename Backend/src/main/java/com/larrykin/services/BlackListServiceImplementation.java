@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.BlackList;
+import com.larrykin.model.BlackList;
 import com.larrykin.exceptions.BlackListNotFoundException;
 import com.larrykin.repositories.BlackListRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.BlackList;
+import com.larrykin.model.BlackList;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.VisitorLog;
+import com.larrykin.model.VisitorLog;
 
 import java.util.List;
 

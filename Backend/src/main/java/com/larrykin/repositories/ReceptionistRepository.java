@@ -1,6 +1,6 @@
 package com.larrykin.repositories;
 
-import com.larrykin.entity.Receptionist;
+import com.larrykin.model.Receptionist;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

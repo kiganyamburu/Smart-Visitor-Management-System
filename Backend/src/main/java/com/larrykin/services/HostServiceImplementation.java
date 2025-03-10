@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.Host;
+import com.larrykin.model.Host;
 import com.larrykin.exceptions.HostNotFoundException;
 import com.larrykin.repositories.HostRepository;
 import org.springframework.beans.factory.annotation.Autowired;

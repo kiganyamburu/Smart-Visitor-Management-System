@@ -1,6 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.Host;
+import com.larrykin.model.Host;
 
 import java.util.List;
 

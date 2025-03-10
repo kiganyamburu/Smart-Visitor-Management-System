@@ -1,7 +1,6 @@
 package com.larrykin.services;
 
-import com.larrykin.entity.Visitor;
-import com.larrykin.exceptions.VisitorLogNotFoundException;
+import com.larrykin.model.Visitor;
 import com.larrykin.exceptions.VisitorNotFoundException;
 import com.larrykin.repositories.VisitorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +37,7 @@ public class VisitorServiceImpl implements VisitorService {
         existingVisitor.setPhoneNumber(visitor.getPhoneNumber());
         existingVisitor.setIdType(visitor.getIdType());
         existingVisitor.setIdNumber(visitor.getIdNumber());
+        existingVisitor.setImageUrl(visitor.getImageUrl());
         existingVisitor.setQrCode(visitor.getQrCode());
         existingVisitor.setCheckInTime(visitor.getCheckInTime());
         existingVisitor.setCheckOutTime(visitor.getCheckOutTime());

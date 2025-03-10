@@ -1,7 +1,8 @@
 package com.larrykin.controllers;
 
-import com.larrykin.entity.Visitor;
+import com.larrykin.model.Visitor;
 import com.larrykin.services.VisitorServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/visitor")
+@Tag(name= "Visitor", description = "Visitor API's")
 public class VisitorController {
     @Autowired
     private VisitorServiceImpl service;

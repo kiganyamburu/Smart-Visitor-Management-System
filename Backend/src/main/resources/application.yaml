@@ -11,6 +11,11 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
+  main:
+    debug: true
 # swagger-ui custom path
 springdoc:
-  swagger-ui.path: /swagger-ui.html
+  swagger-ui.path: /swagger-ui/index.html
+
+#  enabling debug in command line
+#  mvn spring-boot:run -Dspring-boot.run.arguments=--debug
