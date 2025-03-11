@@ -2,6 +2,7 @@ package com.larrykin.model;
 
 import com.larrykin.enums.Permissions;
 import com.larrykin.enums.Role;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -16,6 +17,9 @@ public class Admin {
     private String fullName;
     @NotBlank(message = "PhoneNumber cannot be blank")
     private String phoneNumber;
+    @Email
+    @NotBlank(message = "email cannot be blank")
+    private String email;
     private Role role;
-    private Permissions permissions;
+    private String password;
 }

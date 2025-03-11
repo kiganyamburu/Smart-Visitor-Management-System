@@ -8,6 +8,7 @@ public interface AdminService {
     Admin createAdmin(Admin admin);
 
     Admin getAdminById(String adminId);
+    Admin findAdminByEmail(String adminId);
 
     List<Admin> getAllAdmins();
 

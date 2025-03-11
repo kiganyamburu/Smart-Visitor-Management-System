@@ -24,6 +24,11 @@ public class AdminServiceImplementation implements AdminService {
     }
 
     @Override
+    public Admin findAdminByEmail(String email) {
+        return adminRepository.findByEmail(email).orElseThrow(() -> new AdminNotFoundException("Admin with Email" + email + "not found"));
+    }
+
+    @Override
     public List<Admin> getAllAdmins() {
         return adminRepository.findAll();
     }
@@ -34,7 +39,7 @@ public class AdminServiceImplementation implements AdminService {
         existingAdmin.setFullName(updatedAdmin.getFullName());
         existingAdmin.setPhoneNumber(updatedAdmin.getPhoneNumber());
         existingAdmin.setRole(updatedAdmin.getRole());
-        existingAdmin.setPermissions(updatedAdmin.getPermissions());
+        existingAdmin.setPassword(updatedAdmin.getPassword());
         return adminRepository.save(existingAdmin);
     }
 
