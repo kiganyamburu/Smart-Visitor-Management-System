@@ -3,17 +3,16 @@ package com.larrykin.config;
 import com.larrykin.jwt.AuthEntryPoint;
 import com.larrykin.jwt.AuthTokenFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +23,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -38,12 +38,18 @@ public class SecurityConfig {
     @Autowired
     private AuthEntryPoint authEntryPoint;
 
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests((request) ->
-                ((AuthorizeHttpRequestsConfigurer.AuthorizedUrl) request.anyRequest()).permitAll());
-        httpSecurity.formLogin(Customizer.withDefaults());
-        httpSecurity.httpBasic(Customizer.withDefaults());
+                request
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/api/v1/admin/login", "/api/v1/admin/register", "/api/v1/host/login", "/api/v1/host/register", "/api/v1/receptionist/login", "/api/v1/receptionist/register", "/api/v1" +
+                                "/visitor/login", "/api" +
+                                        "/v1" +
+                                        "/visitor" +
+                                        "/register").permitAll()
+                        .anyRequest().authenticated());
+
         httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
         //add jwt token validator filter
@@ -57,17 +63,18 @@ public class SecurityConfig {
     private CorsConfigurationSource corsConfigurationSource() {
         return new CorsConfigurationSource() {
             @Override
-            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+            public CorsConfiguration getCorsConfiguration(@NotNull HttpServletRequest request) {
                 CorsConfiguration corsConfiguration = new CorsConfiguration();
                 corsConfiguration.setAllowedOrigins(Arrays.asList(
                         "http://localhost:5173",
                         "http://localhost:5174",
-                        "http://localhost:5175"
+                        "http://localhost:5175",
+                        "http://localhost:3000"
                 ));
-                corsConfiguration.setAllowedMethods((java.util.List<String>) Collections.singleton("*"));
+                corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
                 corsConfiguration.setAllowCredentials(true);
                 corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
-                corsConfiguration.setExposedHeaders(Arrays.asList("Authorization"));
+                corsConfiguration.setExposedHeaders(List.of("Authorization"));
                 corsConfiguration.setMaxAge(3600L);
                 return corsConfiguration;
             }

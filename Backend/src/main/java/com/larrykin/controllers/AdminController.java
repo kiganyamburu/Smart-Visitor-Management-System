@@ -48,11 +48,15 @@ public class AdminController {
 
 
     //? register anew admin
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<AuthResponse> createAdmin(@Valid @RequestBody Admin admin) throws Exception {
-        if (service.findAdminByEmail(admin.getEmail()) != null) {
+        try {
+            service.findAdminByEmail(admin.getEmail());
             throw new Exception("Email already exists with another account");
+        } catch (AdminNotFoundException ignored) {
+            //Admin not found proceed with registration
         }
+
         //if not, encode password and save admin
         try {
             Admin _admin = new Admin();

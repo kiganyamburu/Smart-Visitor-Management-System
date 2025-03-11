@@ -1,6 +1,7 @@
 package com.larrykin.model;
 
 import com.larrykin.enums.IDTYPE;
+import com.larrykin.enums.Role;
 import com.larrykin.enums.Status;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,12 +9,17 @@ import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Document(collection = "visitors")
-public class Visitor {
+public class Visitor implements AppUser {
     @Id
     private String visitor;
     @NotBlank(message = "FullName cannot be blank")
@@ -32,4 +38,13 @@ public class Visitor {
     private Date checkOutTime;
     private Status status;
     private String hostId;
+    @NotBlank(message = "Role cannot be blank")
+    private Role role;
+    @NotBlank(message = "Password cannot be blank")
+    private String password;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+    }
 }

@@ -1,7 +1,7 @@
 package com.larrykin.services;
 
-import com.larrykin.model.Receptionist;
 import com.larrykin.exceptions.ReceptionistNotFoundException;
+import com.larrykin.model.Receptionist;
 import com.larrykin.repositories.ReceptionistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +21,10 @@ public class ReceptionistServiceImplementation implements ReceptionistService {
     @Override
     public Receptionist getReceptionistById(String id) {
         return receptionistRepository.findById(id).orElseThrow(() -> new ReceptionistNotFoundException("Receptionist with ID" + id + "not found"));
+    }
+@Override
+    public Receptionist findReceptionistByEmail(String email) {
+        return receptionistRepository.findByEmail(email).orElseThrow(() -> new ReceptionistNotFoundException("Receptionist with Email" + email + "not found"));
     }
 
     @Override

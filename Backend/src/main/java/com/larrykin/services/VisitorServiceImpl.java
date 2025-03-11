@@ -25,6 +25,11 @@ public class VisitorServiceImpl implements VisitorService {
     }
 
     @Override
+    public Visitor findVisitorByEmail(String email) {
+        return visitorRepository.findByEmail(email).orElseThrow(() -> new VisitorNotFoundException("Visitor with Email" + email + "not found"));
+    }
+
+    @Override
     public List<Visitor> getAllVisitors() {
         return visitorRepository.findAll();
     }

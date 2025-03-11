@@ -22,6 +22,10 @@ public class HostServiceImplementation implements HostService {
     public Host getHostById(String id) {
         return hostRepository.findById(id).orElseThrow(() -> new HostNotFoundException("Host with ID " + id + "not found"));
     }
+    @Override
+    public Host findHostByEmail(String email) {
+        return hostRepository.findByEmail(email).orElseThrow(() -> new HostNotFoundException("Host with Email " + email + "not found"));
+    }
 
     @Override
     public List<Host> getAllHosts() {

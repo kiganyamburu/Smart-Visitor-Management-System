@@ -8,6 +8,7 @@ public interface HostService {
     Host createHost(Host host);
 
     Host getHostById(String id);
+    Host findHostByEmail(String email);
 
     List<Host> getAllHosts();
 

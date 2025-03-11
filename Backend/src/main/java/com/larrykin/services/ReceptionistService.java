@@ -8,6 +8,7 @@ public interface ReceptionistService {
     Receptionist createReceptionist(Receptionist receptionist);
 
     Receptionist getReceptionistById(String id);
+    Receptionist findReceptionistByEmail(String email);
 
     List<Receptionist> getAllReceptionists();
 

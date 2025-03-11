@@ -16,6 +16,7 @@ import java.util.Date;
 @Slf4j
 @Component
 public class JwtUtils {
+
     @Value("${JWT_SECRET}")
     private String jwtSecret;
     @Value("${JWT_EXPIRATION}")

@@ -9,6 +9,8 @@ public interface VisitorService {
 
     Visitor getVisitorById(String id);
 
+    Visitor findVisitorByEmail(String email);
+
     List<Visitor> getAllVisitors();
 
     Visitor updateVisitor(String id, Visitor visitor);
