@@ -5,8 +5,8 @@ spring:
     name: svms
   data:
     mongodb:
-#      uri: ${MONGODB_URI}
-      uri: mongodb+srv://kinuthialawrence343:XelCjNKhYojwZVpB@cluster0.akvymy0.mongodb.net/svms
+      uri: ${MONGODB_URI}
+#      uri: mongodb+srv://kinuthialawrence343:XelCjNKhYojwZVpB@cluster0.akvymy0.mongodb.net/svms
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
@@ -22,7 +22,11 @@ springdoc:
     path: /v3/api-docs
     enabled: true
 
-JWT_SECRET: 0A4E62E920D7B0B05146941766133C1EF33342A93346A134F10359B8A19E05B46EDE434F47BB0B111D5709D29F08543AF0A32F2CDF462A61F4007EEF486456CC
-JWT_EXPIRATION: 900000
+#SMTP_HOST: smtp.gmail.com
+#SMTP_PORT: 465
+#EMAIL_USERNAME: "kinuthialawrence343@gmail.com"
+#EMAIL_PASSWORD: "jlan vjur jayj jsoy"
+#JWT_SECRET: 0A4E62E920D7B0B05146941766133C1EF33342A93346A134F10359B8A19E05B46EDE434F47BB0B111D5709D29F08543AF0A32F2CDF462A61F4007EEF486456CC
+#JWT_EXPIRATION: 900000
 #  enabling debug in command line
 #  mvn spring-boot:run -Dspring-boot.run.arguments=--debug

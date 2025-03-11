@@ -1,14 +1,12 @@
 package com.larrykin.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DotenvConfig {
-
-    @PostConstruct
-    public void loadEnv() {
+    //static block to load the env variables before the spring context.
+    static {
         Dotenv dotenv = Dotenv.configure()
                 .directory("Backend")
                 .ignoreIfMalformed()
