@@ -1,0 +1,5 @@
+web_addr: 4041
+tunnels:
+  myapp:
+    proto: http
+    addr: 9090
