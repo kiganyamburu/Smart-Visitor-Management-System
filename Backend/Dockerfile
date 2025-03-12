@@ -16,9 +16,9 @@ WORKDIR /app
 #copy the jar file from the first stage
 COPY --from=build /app/target/svms-0.0.1-SNAPSHOT.jar app.jar
 #Expose the port that the application will run
-EXPOSE 8081
+EXPOSE 9090
 #specify the command to run the Jar file
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
 #docker build -t svms .
-#docker run -p 8081:8081 svms
+#docker run -p 9090:9090 svms

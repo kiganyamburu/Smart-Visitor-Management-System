@@ -15,13 +15,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Document(collection = "visitors")
 public class Visitor implements AppUser {
     @Id
-    private String visitor;
+    private String visitorId;
     @NotBlank(message = "FullName cannot be blank")
     private String fullName;
     @Email(message = "Should be an email")

@@ -1,0 +1,31 @@
+# fly.toml app configuration file generated for backend-lingering-flower-8936 on 2025-03-12T15:05:49+03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'backend-lingering-flower-8936'
+primary_region = 'sin'
+
+[build]
+
+[http_service]
+  internal_port = 9090
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[env]
+MONGODB_URI = "mongodb+srv://kinuthialawrence343:XelCjNKhYojwZVpB@cluster0.akvymy0.mongodb.net/svms"
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 465
+EMAIL_USERNAME = "kinuthialawrence343@gmail.com"
+EMAIL_PASSWORD ="jlan vjur jayj jsoy"
+JWT_SECRET = "0A4E62E920D7B0B05146941766133C1EF33342A93346A134F10359B8A19E05B46EDE434F47BB0B111D5709D29F08543AF0A32F2CDF462A61F4007EEF486456CC"
+JWT_EXPIRATION = 9000000
