@@ -1,8 +1,10 @@
 package com.larrykin.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.larrykin.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -24,13 +26,19 @@ public class Admin implements AppUser {
     @Email
     @NotBlank(message = "email cannot be blank")
     private String email;
-    @NotBlank(message = "Role cannot be blank")
+    @NotNull(message = "Role cannot be blank")
     private Role role;
     @NotBlank(message = "Password cannot be blank")
     private String password;
 
+
+    /**
+     * GrantedAuthority interface is not directly serializable by Jackson, which is used by Spring Boot to convert JSON to Java objects and vice versa. We have to customize serialization and deserialization
+     */
+
     @Override
+    @JsonIgnore //since authorities are derived form the role
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 }

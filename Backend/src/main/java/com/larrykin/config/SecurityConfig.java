@@ -48,7 +48,7 @@ public class SecurityConfig {
                                         "/v1" +
                                         "/visitor" +
                                         "/register").permitAll()
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);

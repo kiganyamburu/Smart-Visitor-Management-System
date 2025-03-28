@@ -20,12 +20,12 @@ public class AdminServiceImplementation implements AdminService {
 
     @Override
     public Admin getAdminById(String adminId) {
-        return adminRepository.findById(adminId).orElseThrow(() -> new AdminNotFoundException("Admin with ID" + adminId + "not found"));
+        return adminRepository.findById(adminId).orElseThrow(() -> new AdminNotFoundException("Admin with ID:: " + adminId + " not found"));
     }
 
     @Override
     public Admin findAdminByEmail(String email) {
-        return adminRepository.findByEmail(email).orElseThrow(() -> new AdminNotFoundException("Admin with Email" + email + "not found"));
+        return adminRepository.findByEmail(email).orElseThrow(() -> new AdminNotFoundException("Admin with Email " + email + " not found"));
     }
 
     @Override
