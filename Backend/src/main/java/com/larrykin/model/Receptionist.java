@@ -1,5 +1,6 @@
 package com.larrykin.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.larrykin.enums.AssignedLocation;
 import com.larrykin.enums.Role;
 import jakarta.validation.constraints.Email;
@@ -33,7 +34,8 @@ public class Receptionist implements AppUser {
     private String password;
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" +role.name()));
     }
 }

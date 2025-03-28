@@ -96,7 +96,8 @@ public class AdminController {
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
                 String jwt = jwtUtils.generateTokenFromUsername(userDetails);
 
-                String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+                String authority = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+                String role = authority.replace("ROLE_", "");
 
                 AuthResponse authResponse = new AuthResponse();
                 authResponse.setJwtToken(jwt);

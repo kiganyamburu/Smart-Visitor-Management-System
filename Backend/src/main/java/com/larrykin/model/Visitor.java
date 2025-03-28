@@ -1,5 +1,6 @@
 package com.larrykin.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.larrykin.enums.IDTYPE;
 import com.larrykin.enums.Role;
 import com.larrykin.enums.Status;
@@ -44,7 +45,8 @@ public class Visitor implements AppUser {
     private String password;
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" +role.name()));
     }
 }
