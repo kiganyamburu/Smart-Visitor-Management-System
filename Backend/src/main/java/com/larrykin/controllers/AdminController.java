@@ -52,10 +52,10 @@ public class AdminController {
             service.findAdminByEmail(admin.getEmail());
             throw new Exception("Email already exists with another account");
         } catch (AdminNotFoundException ignored) {
-            //Admin not found proceed with registration
+            // Admin not found, proceed with registration
         }
 
-        //if not, encode password and save admin
+        // Encode password and save admin
         try {
             Admin _admin = new Admin();
             _admin.setFullName(admin.getFullName());
@@ -65,7 +65,7 @@ public class AdminController {
             _admin.setPassword(passwordEncoder.encode(admin.getPassword()));
 
             log.info("AdminController:: Registering admin: {}", _admin);
-            Admin createdAdmin = service.createAdmin(admin);
+            Admin createdAdmin = service.createAdmin(_admin);
             log.info("Admin saved: {}", createdAdmin);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(admin.getEmail(), admin.getPassword());
@@ -80,10 +80,9 @@ public class AdminController {
             authResponse.setMessage("Admin registered successfully");
             authResponse.setRole(admin.getRole());
 
-
             return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
-            throw new Exception("Error occured while registering user" + e.getMessage());
+            throw new Exception("Error occurred while registering user: " + e.getMessage());
         }
     }
 

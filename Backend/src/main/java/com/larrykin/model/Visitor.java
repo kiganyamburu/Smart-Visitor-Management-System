@@ -5,6 +5,7 @@ import com.larrykin.enums.Role;
 import com.larrykin.enums.Status;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.data.annotation.Id;
@@ -37,7 +38,7 @@ public class Visitor implements AppUser {
     private Date checkOutTime;
     private Status status;
     private String hostId;
-    @NotBlank(message = "Role cannot be blank")
+    @NotNull(message = "Role cannot be null")
     private Role role;
     @NotBlank(message = "Password cannot be blank")
     private String password;
