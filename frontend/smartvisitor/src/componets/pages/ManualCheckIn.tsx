@@ -54,7 +54,7 @@ const ManualCheckIn: React.FC = () => {
 
     setLoading(true);
     try {
-      await axios.post("https://90ad-102-213-241-210.ngrok-free.app/api/v1/visitor/manual-checkin", formData);
+      await axios.post("https://backend-lingering-flower-8936.fly.dev/api/v1/visitor/manual-checkin", formData);
       setMessage(`✅ ${formData.name} has been checked in successfully!`);
       setFormData(initialData);
     } catch (error) {
