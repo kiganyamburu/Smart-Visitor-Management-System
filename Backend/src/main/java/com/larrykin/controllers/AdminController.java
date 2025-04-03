@@ -72,7 +72,6 @@ public class AdminController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(admin.getEmail());
-
             String jwt = jwtUtils.generateTokenFromUsername(userDetails);
 
             AuthResponse authResponse = new AuthResponse();

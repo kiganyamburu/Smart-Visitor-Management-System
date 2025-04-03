@@ -6,4 +6,5 @@ public enum Role {
     REGULAR_STAFF,
     VISITOR,
     HOST,
+    GUEST,
 }

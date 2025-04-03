@@ -7,7 +7,7 @@ import lombok.Data;
 public class EmailRequest {
     @NotBlank(message = "name cannot be blank")
     private String name;
-    @NotBlank(message = "email connot be blank")
+    @NotBlank(message = "email cannot be blank")
     private String email;
     @NotBlank(message = "Phone cannot be blank")
     private String phone;
@@ -15,6 +15,7 @@ public class EmailRequest {
     private String subject;
     @NotBlank(message = "Message cannot be blank")
     private String message;
+    private String visitorId;
 
     @Override
     public String toString() {
@@ -24,6 +25,7 @@ public class EmailRequest {
                 ", subject= '" + subject + '\'' +
                 ", phone='" + phone + '\'' +
                 ", message='" + message + '\'' +
+                ", visitorId='" + visitorId + '\'' +
                 '}';
     }
 }

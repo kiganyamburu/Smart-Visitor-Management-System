@@ -43,6 +43,7 @@ public class JwtUtils {
     public String generateTokenFromUsername(UserDetails userDetails) {
         log.info("JwtUtils:: Generating JWT token");
         String username = userDetails.getUsername();
+
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
@@ -50,6 +51,7 @@ public class JwtUtils {
                 .signWith(key)
                 .compact();
     }
+
 
     public String getUsernameFromJwtToken(String token) {
         log.info("JwtUtils:: Extracting username JWT token");

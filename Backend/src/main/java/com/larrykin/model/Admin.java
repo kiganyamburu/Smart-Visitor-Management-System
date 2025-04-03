@@ -31,11 +31,9 @@ public class Admin implements AppUser {
     @NotBlank(message = "Password cannot be blank")
     private String password;
 
-
     /**
-     * GrantedAuthority interface is not directly serializable by Jackson, which is used by Spring Boot to convert JSON to Java objects and vice versa. We have to customize serialization and deserialization
+     GrantedAuthority interface is not directly serializable by Jackson, which is used by Spring Boot to convert JSON to Java objects and vice versa. We have to customize serialization and deserialization
      */
-
     @Override
     @JsonIgnore //since authorities are derived form the role
     public Collection<? extends GrantedAuthority> getAuthorities() {
