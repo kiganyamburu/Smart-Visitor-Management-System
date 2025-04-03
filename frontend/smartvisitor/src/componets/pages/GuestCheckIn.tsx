@@ -4,34 +4,34 @@ import ClipLoader from "react-spinners/ClipLoader";
 
 interface GuestCheckInData {
     visitorId: string;
-    fullName: string;
+    name: string;
     email: string;
-    phoneNumber: string;
+    phone: string;
     idType: "NATIONAL_ID" | "PASSPORT" | "DRIVER_LICENSE";
     idNumber: string;
-    imageUrl: string;
+    // imageUrl: string;
     qrCode: string;
     checkInTime: string;
     checkOutTime: string;
     status: "CHECKED_IN";
-    hostId: string;
+    // hostId: string;
     role: "GUEST";
 }
 
 const GuestCheckIn: React.FC = () => {
     const [formData, setFormData] = useState<GuestCheckInData>({
         visitorId: "",
-        fullName: "",
+        name: "",
         email: "",
-        phoneNumber: "",
+        phone: "",
         idType: "NATIONAL_ID",
         idNumber: "",
-        imageUrl: "",
+        // imageUrl: "",
         qrCode: "",
         checkInTime: new Date().toISOString(),
         checkOutTime: "",
         status: "CHECKED_IN",
-        hostId: "",
+        // hostId: "",
         role: "GUEST",
     });
 
@@ -69,9 +69,6 @@ const GuestCheckIn: React.FC = () => {
             const context = canvasRef.current.getContext("2d");
             if (context) {
                 context.drawImage(videoRef.current, 0, 0, 320, 240);
-                const imageData = canvasRef.current.toDataURL("image/png");
-                setFormData({ ...formData, imageUrl: imageData });
-
                 // Stop Camera
                 stopCamera();
             }
@@ -99,23 +96,24 @@ const GuestCheckIn: React.FC = () => {
         setMessage(null);
 
         try {
-            const response = await axios.post("/api/guest-checkin", formData);
-            setMessage(`✅ ${formData.fullName} has been checked in successfully!`);
+            const response = await axios.post("https://90ad-102-213-241-210.ngrok-free.app/api/v1/visitor/guest-checkin", formData);
+            setMessage(`✅ ${formData.name} has been checked in successfully!`);
             setFormData({
                 visitorId: "",
-                fullName: "",
+                name: "",
                 email: "",
-                phoneNumber: "",
+                phone: "",
                 idType: "NATIONAL_ID",
                 idNumber: "",
-                imageUrl: "",
+                // imageUrl: "",
                 qrCode: "",
                 checkInTime: new Date().toISOString(),
                 checkOutTime: "",
                 status: "CHECKED_IN",
-                hostId: "",
+                // hostId: "",
                 role: "GUEST",
             });
+            console.log(response);
         } catch (error) {
             console.error("Guest Check-in Failed:", error);
             setMessage("❌ Error checking in. Please try again.");
@@ -137,11 +135,11 @@ const GuestCheckIn: React.FC = () => {
 
             {/* Check-in Form */}
             <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-                <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name" required className="w-full p-2 border rounded-md" />
+                <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" required className="w-full p-2 border rounded-md" />
                 
                 <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required className="w-full p-2 border rounded-md" />
                 
-                <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="Phone Number" required className="w-full p-2 border rounded-md" />
+                <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" required className="w-full p-2 border rounded-md" />
                 
                 <select name="idType" value={formData.idType} onChange={handleChange} className="w-full p-2 border rounded-md">
                     <option value="NATIONAL_ID">National ID</option>
@@ -151,7 +149,7 @@ const GuestCheckIn: React.FC = () => {
                 
                 <input type="text" name="idNumber" value={formData.idNumber} onChange={handleChange} placeholder="ID Number" required className="w-full p-2 border rounded-md" />
                 
-                <input type="text" name="hostId" value={formData.hostId} onChange={handleChange} placeholder="Host ID" required className="w-full p-2 border rounded-md" />
+                {/* <input type="text" name="hostId" value={formData.hostId} onChange={handleChange} placeholder="Host ID" required className="w-full p-2 border rounded-md" /> */}
 
                 {/* Photo Capture Section */}
                 {cameraActive ? (
@@ -165,20 +163,11 @@ const GuestCheckIn: React.FC = () => {
                         </button>
                     </div>
                 ) : (
-                    <button type="button" onClick={startCamera} className="w-full bg-gray-700 text-white p-2 rounded-md hover:bg-gray-800 transition">
+                    <button type="button" onClick={startCamera} className="hidden w-full bg-gray-700 text-white p-2 rounded-md hover:bg-gray-800 transition">
                         📷 Open Camera
                     </button>
                 )}
 
-                {/* Display Captured Image */}
-                {formData.imageUrl && (
-                    <div className="flex flex-col items-center">
-                        <img src={formData.imageUrl} alt="Captured" className="w-32 h-32 border rounded-md mt-2" />
-                        <button type="button" onClick={startCamera} className="mt-2 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition">
-                            🔄 Retake Photo
-                        </button>
-                    </div>
-                )}
 
                 {/* Loading State */}
                 <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition flex justify-center items-center gap-2">

@@ -29,7 +29,10 @@ const Settings: React.FC = () => {
     });
 
     useEffect(() => {
-        if (!user || !user.id) return;
+        if (!user || !user.id){
+            setError("user must be logged in")
+            return;
+        } 
 
         const fetchUserDetails = async () => {
             try {

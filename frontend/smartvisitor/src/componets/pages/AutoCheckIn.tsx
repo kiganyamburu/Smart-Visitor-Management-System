@@ -1,8 +1,7 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import jsQR from "jsqr";
 import { FaCheckCircle, FaTimesCircle, FaCamera, FaSyncAlt } from "react-icons/fa";
-import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
 
 interface User {
@@ -13,7 +12,7 @@ interface User {
 interface QrCodeResponse {
     code: string;
     valid: boolean;
-    user?: User;
+    name?: User;
 }
 
 const AutoCheckIn: React.FC = () => {
@@ -22,43 +21,51 @@ const AutoCheckIn: React.FC = () => {
     const [message, setMessage] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [capturing, setCapturing] = useState<boolean>(false);
-    const [validCodes, setValidCodes] = useState<string[]>([]);
     const webcamRef = useRef<Webcam>(null);
 
-    useEffect(() => {
-        const fetchValidQrCodes = async () => {
-            try {
-                const response = await axios.get<QrCodeResponse[]>("/api/qrcodes");
-                setValidCodes(response.data.map(qr => qr.code));
-            } catch (error) {
-                console.error("Error fetching QR codes:", error);
-                setMessage("Failed to fetch QR codes ❌");
-            }
-        };
-        fetchValidQrCodes();
-    }, []);
-
-    const checkInUser = async (code: string): Promise<void> => {
+    const checkInUser = async (urlcode: string): Promise<void> => {
+        console.log("Checking in user with QR code:", urlcode);
         setLoading(true);
         setMessage(null);
 
-        try {
-            const response = await axios.post<QrCodeResponse>("/api/checkin", { code });
-            if (response.data.valid) {
-                setUser(response.data.user || null);
-                setMessage(`✅ Welcome, ${response.data.user?.name}!`);
-            } else {
-                setUser(null);
-                setMessage("❌ Invalid QR Code");
-            }
-        } catch (error) {
-            console.error("Error checking in:", error);
-            setMessage("❌ System error, please try again.");
-        } finally {
-            setLoading(false);
-        }
+        return fetch(`${urlcode}/checkin`, {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => {
+                console.log("Response:", response);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Invalid response: Expected JSON but received something else.");
+                }
+                return response.json();
+            })
+            .then((data: QrCodeResponse) => {
+                console.log("Parsed JSON response:", data);
+                if (data && data.name) {
+                    setUser(data.name);
+                    setMessage(`✅ Welcome, ${data.name}!`);
+                } else {
+                    setUser(null);
+                    setMessage("❌ Invalid QR Code");
+                }
+            })
+            .catch((error) => {
+                console.error("Error checking in:", error);
+                setMessage("❌ System error, please try again.");
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
+    // Function to capture the image from the webcam and scan for a QR code
     const captureAndScan = async () => {
         if (!webcamRef.current) return;
         setCapturing(true);
@@ -76,7 +83,11 @@ const AutoCheckIn: React.FC = () => {
         img.onload = () => {
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
-            if (!ctx) return;
+            if (!ctx) {
+                setMessage("❌ Unable to process image");
+                setCapturing(false);
+                return;
+            }
 
             canvas.width = img.width;
             canvas.height = img.height;
@@ -84,29 +95,32 @@ const AutoCheckIn: React.FC = () => {
 
             const imageData = ctx.getImageData(0, 0, img.width, img.height);
             const qrCodeData = jsQR(imageData.data, img.width, img.height);
+            //console.log("QR Code Data:", qrCodeData);
 
             if (qrCodeData) {
+                // QR Code detected
                 setQrCode(qrCodeData.data);
-                if (validCodes.includes(qrCodeData.data)) {
-                    checkInUser(qrCodeData.data);
-                } else {
-                    setMessage("❌ QR Code not recognized");
-                }
+                checkInUser(qrCodeData.data);
             } else {
+                // No QR code found
                 setMessage("❌ No QR Code detected");
             }
+            setCapturing(false);
+        };
 
+        img.onerror = () => {
+            setMessage("❌ Error loading captured image");
             setCapturing(false);
         };
     };
 
     return (
-        <div className="max-w-xl mx-auto mt-10 p-6 rounded-lg border border-gray-200 bg-gradient-to-r from-slate-700 to-slate-900 text-white shadow-lg">
-            <h2 className="text-2xl font-semibold text-center text-white">🎫 Auto Check-In</h2>
+        <div className="max-w-xl mx-auto mt-10 p-6 rounded-lg border border-gray-200 bg-gradient-to-r from-slate-200 to-slate-300 text-white shadow-lg">
+            <h2 className="text-2xl font-semibold text-center text-gray-800">🎫 Auto Check-In</h2>
 
-            <div className="mt-4 relative">
+            <div className="mt-2 relative">
                 <p className="text-sm text-gray-300 text-center">Capture QR Code:</p>
-                <div className="bg-gray-800 p-2 rounded-md relative shadow-md border border-gray-600">
+                <div className="bg-gray-100 p-2 rounded-md relative shadow-md border border-gray-600">
                     <Webcam
                         audio={false}
                         ref={webcamRef}
@@ -131,15 +145,19 @@ const AutoCheckIn: React.FC = () => {
             )}
 
             {qrCode && (
-                <div className="mt-4 p-3 bg-blue-600 rounded-md flex items-center gap-2 border border-blue-500">
-                    <p className="text-white">Scanned QR Code: <strong>{qrCode}</strong></p>
+                <div className="mt-4 hidden p-3 bg-blue-600 rounded-md flex items-center gap-2 border border-blue-500">
+                    <p className="text-white">
+                        Scanned QR Code: <strong>{qrCode}</strong>
+                    </p>
                 </div>
             )}
 
             {user && (
                 <div className="mt-4 p-3 bg-green-600 rounded-md flex items-center gap-2 border border-green-500">
                     <FaCheckCircle className="text-white text-xl" />
-                    <p className="text-white">✅ Welcome, <strong>{user.name}</strong> from {user.department}!</p>
+                    <p className="text-white">
+                        ✅ Welcome, <strong>{user.name}</strong> from {user.department}!
+                    </p>
                 </div>
             )}
 

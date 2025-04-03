@@ -4,7 +4,8 @@ const API_BASE_URL = "https://backend-lingering-flower-8936.fly.dev/api/v1"; // 
 
 export const loginAdmin = async (email: string, password: string) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/login`, { email, password });
+    const response = await axios.post(`${API_BASE_URL}/admin/login`, { email, password });
+    console.log(response.data);
     return response.data;
   } catch (error: any) {
     throw error.response?.data?.message || "Login failed. Please try again.";

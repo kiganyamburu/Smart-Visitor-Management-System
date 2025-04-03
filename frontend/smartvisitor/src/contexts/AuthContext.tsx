@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("Decoded token", decoded);
         setUser({
           id: decoded.id,
-          name: decoded.name,
+          name: decoded.sub,
           role: decoded.role,
           department: decoded.department,
         });
