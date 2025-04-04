@@ -1,10 +1,11 @@
 package com.larrykin.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.larrykin.enums.IDTYPE;
 import com.larrykin.enums.Role;
+import com.larrykin.enums.Status;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,11 +14,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Date;
 
 @Data
-@Document(collection = "hosts")
-public class Host implements AppUser {
+@Document(collection = "staff")
+public class Staff implements AppUser {
     @Id
     private String hostId;
     @NotBlank(message = "FullName cannot be null")
@@ -26,13 +27,15 @@ public class Host implements AppUser {
     private String email;
     @NotBlank(message = "PhoneNumber cannot be null")
     private String phoneNumber;
+    private IDTYPE idtype;
+    private String idNumber;
+    private String imageUrl;
+    private Date checkInTime;
+    private Status status;
     private String department;
-    @NotNull(message = "Role cannot be null")
-    private Role role;
-    private List<String> visitorsID;
-    @NotBlank(message = "Password cannot be Blank")
-    private String password;
-
+    private String gender;
+    private Role role = Role.STAFF;
+    private String password = null;
 
     @Override
     @JsonIgnore

@@ -28,11 +28,11 @@ public class VisitorServiceImpl implements VisitorService {
 
     @Override
     public Visitor createVisitor(Visitor visitor) {
-        //*Generate QR code and update
+        // Generate QR code and update
         visitor.setStatus(Status.PENDING);
         visitor.setRole(Role.VISITOR);
 
-        //* set qrcode
+        // Save visitor to get the ID
         Visitor savedVisitor = visitorRepository.save(visitor);
         String id = savedVisitor.getVisitorId();
         String url = UrlUtil.getBaseUrl() + "/api/v1/visitor/" + id;
@@ -40,15 +40,21 @@ public class VisitorServiceImpl implements VisitorService {
         String qrCode = qrCodeGenerator.generateQRCode(url);
         savedVisitor.setQrCode(qrCode);
 
-        //* Send email
+        // Send email
         try {
             EmailRequest emailRequest = new EmailRequest();
             emailRequest.setVisitorId(id);
             emailRequest.setName(savedVisitor.getName());
-            emailRequest.setPhone(emailRequest.getPhone());
-            emailRequest.setEmail(emailRequest.getEmail());
+            emailRequest.setPhone(savedVisitor.getPhone());
+            emailRequest.setEmail(savedVisitor.getEmail());
             emailRequest.setSubject("Your QR Code for Visitor Check-In");
-            emailRequest.setMessage("Dear " + savedVisitor.getName() + ", \n\nPlease find your QR code attached for visitor check-in.\n\n Best regards,\nSvms");
+            emailRequest.setMessage("Dear " + savedVisitor.getName() + ",\n\nPlease find your QR code attached for visitor check-in.\n\nBest regards,\nSvms");
+
+            if (qrCode == null || qrCode.isEmpty()) {
+                log.error("QR code is null or empty");
+                return savedVisitor;
+            }
+
             Boolean isSent = service.sendEmailWithAttachment(emailRequest, qrCode);
             if (isSent) {
                 log.info("Email sent successfully to {}", savedVisitor.getEmail());
@@ -56,7 +62,7 @@ public class VisitorServiceImpl implements VisitorService {
                 log.error("Failed to send Email");
             }
         } catch (Exception e) {
-            log.error("Failed to send Email{}", e.getMessage());
+            log.error("Failed to send Email: {}", e.getMessage());
             log.error("error", e);
         }
 
@@ -123,6 +129,8 @@ public class VisitorServiceImpl implements VisitorService {
         existingVisitor.setCheckOutTime(visitor.getCheckOutTime());
         existingVisitor.setStatus(visitor.getStatus());
         existingVisitor.setPurpose(visitor.getPurpose());
+        existingVisitor.setDepartment(visitor.getDepartment());
+        existingVisitor.setGender(visitor.getGender());
 
 
         return visitorRepository.save(existingVisitor);

@@ -73,6 +73,12 @@ public class EmailService {
 
     //* Send email with attachment
     public Boolean sendEmailWithAttachment(EmailRequest emailRequest, String qrCodeBase64) {
+        if (emailRequest == null || emailRequest.getEmail() == null || emailRequest.getSubject() == null || emailRequest.getMessage() == null || qrCodeBase64 == null) {
+            log.info("Qrcode: ", qrCodeBase64);
+            log.info("EmailRequest:: ", emailRequest.toString());
+            log.error("EmailRequest or QR code is null");
+            return false;
+        }
         try {
             Properties props = new Properties();
             props.put("mail.smtp.host", SMTP_HOST);
@@ -117,6 +123,7 @@ public class EmailService {
             return true;
         } catch (Exception e) {
             log.info("An error occurred sending email with attachment: {}", e.getMessage());
+            log.info("Error:: " + e.toString());
             return false;
         }
     }

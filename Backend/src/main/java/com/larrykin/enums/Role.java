@@ -5,6 +5,6 @@ public enum Role {
     RECEPTIONIST,
     REGULAR_STAFF,
     VISITOR,
-    HOST,
+    STAFF,
     GUEST,
 }

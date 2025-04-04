@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(HostNotFoundException.class)
+    @ExceptionHandler(StaffNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleHostNotFoundException(Exception ex) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("timestamp", LocalDate.now());

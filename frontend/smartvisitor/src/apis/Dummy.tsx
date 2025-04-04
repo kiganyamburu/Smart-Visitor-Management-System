@@ -6,7 +6,7 @@ interface Visitor {
     checkOutTime?: string;
     status: "Checked In" | "Checked Out";
     location?: string;
-    host: string;
+    staff: string;
   }
   
 export const dummyGraphData = [
@@ -68,7 +68,7 @@ export const dummyGraphData = [
       checkOutTime: "11:00 AM",
       status: "Checked Out",
       location: "Office 1",
-      host: "John Doe"
+      staff: "John Doe"
     },
     {
       id: "2",
@@ -78,7 +78,7 @@ export const dummyGraphData = [
       checkOutTime: "12:30 PM",
       status: "Checked Out",
       location: "Office 2",
-      host: "Jane Doe"
+      staff: "Jane Doe"
     },
     {
       id: "3",
@@ -88,7 +88,7 @@ export const dummyGraphData = [
       checkOutTime: undefined,
       status: "Checked In",
       location: "Office 3",
-      host: "Alex Kim"
+      staff: "Alex Kim"
     },
     {
       id: "4",
@@ -98,7 +98,7 @@ export const dummyGraphData = [
       checkOutTime: undefined,
       status: "Checked In",
       location: "Office 1",
-      host: "Bruce Wayne"
+      staff: "Bruce Wayne"
     },
     {
       id: "5",
@@ -108,7 +108,7 @@ export const dummyGraphData = [
       checkOutTime: "01:15 PM",
       status: "Checked Out",
       location: "Office 2",
-      host: "James Bond"
+      staff: "James Bond"
     },
     {
       id: "6",
@@ -118,7 +118,7 @@ export const dummyGraphData = [
       checkOutTime: undefined,
       status: "Checked In",
       location: "Office 3",
-      host: "Walter White"
+      staff: "Walter White"
     },
     {
       id: "7",
@@ -128,7 +128,7 @@ export const dummyGraphData = [
       checkOutTime: "10:45 AM",
       status: "Checked Out",
       location: "Office 1",
-      host: "Jerry Seinfeld"
+      staff: "Jerry Seinfeld"
     },
     {
       id: "8",
@@ -138,7 +138,7 @@ export const dummyGraphData = [
       checkOutTime: "11:45 AM",
       status: "Checked Out",
       location: "Office 2",
-      host: "Miley Stewart"
+      staff: "Miley Stewart"
     },
     {
       id: "9",
@@ -148,7 +148,7 @@ export const dummyGraphData = [
       checkOutTime: undefined,
       status: "Checked In",
       location: "Office 3",
-      host: "Patrick Stewart"
+      staff: "Patrick Stewart"
     },
     {
       id: "10",
@@ -158,7 +158,7 @@ export const dummyGraphData = [
       checkOutTime: "02:00 PM",
       status: "Checked Out",
       location: "Office 1",
-      host: "Luke Cage"
+      staff: "Luke Cage"
     }
   ];
   

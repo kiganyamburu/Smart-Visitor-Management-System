@@ -35,6 +35,8 @@ public class Visitor implements AppUser {
     private Date checkOutTime;
     private Status status;
     private String purpose;
+    private String department;
+    private String gender;
     private Role role;
     private String password = null;
 

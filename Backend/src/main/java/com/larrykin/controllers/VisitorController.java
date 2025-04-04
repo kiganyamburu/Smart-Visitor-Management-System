@@ -24,6 +24,11 @@ public class VisitorController {
 
     @PostMapping
     public ResponseEntity<Visitor> save(@Valid @RequestBody Visitor visitor) {
+        //Check if user exists
+        Visitor exist = service.findVisitorByEmail(visitor.getEmail());
+        if (exist != null) {
+            ResponseEntity.badRequest().body("You are already Checked in");
+        }
         return ResponseEntity.ok(service.createVisitor(visitor));
     }
 
@@ -44,6 +49,9 @@ public class VisitorController {
     @GetMapping("/{id}/checkout-qr")
     public ResponseEntity<String> checkout(@PathVariable("id") String id) {
         Visitor visitor = service.getVisitorById(id);
+        if (visitor.getStatus() != Status.CHECKED_IN) {
+            return ResponseEntity.badRequest().body("You must be checked in first to check out");
+        }
         if (visitor.getStatus() != Status.CHECKED_OUT) {
             visitor.setStatus(Status.CHECKED_OUT);
             service.updateVisitor(id, visitor);
@@ -58,6 +66,9 @@ public class VisitorController {
     @GetMapping("/{id}/checkout-id")
     public ResponseEntity<String> checkoutId(@PathVariable("id") String id) {
         Visitor visitor = service.findByIdNumber(id);
+        if (visitor.getStatus() != Status.CHECKED_IN) {
+            return ResponseEntity.badRequest().body("You must be checked in first to check out");
+        }
         if (visitor.getStatus() != Status.CHECKED_OUT) {
             visitor.setStatus(Status.CHECKED_OUT);
             service.updateVisitor(id, visitor);

@@ -14,7 +14,7 @@ interface Visitor {
     checkOutTime?: string;
     status: "Checked In" | "Checked Out";
     location?: string;
-    host: string;
+    staff: string;
 }
 
 const AttendanceDashboard: React.FC = () => {
@@ -58,7 +58,7 @@ const AttendanceDashboard: React.FC = () => {
             visitor.checkOutTime || "N/A",
             visitor.status,
             visitor.location || "N/A",
-            visitor.host
+            visitor.staff
         ])
     ];
 
@@ -122,7 +122,7 @@ const AttendanceDashboard: React.FC = () => {
                                 <td className="border p-2">{visitor.checkInTime || "-"}</td>
                                 <td className="border p-2">{visitor.checkOutTime || "-"}</td>
                                 <td className={`border p-2 ${visitor.status === "Checked In" ? "text-green-600" : "text-red-600"}`}>{visitor.status}</td>
-                                <td className="border p-2">{visitor.host}</td>
+                                <td className="border p-2">{visitor.staff}</td>
                             </tr>
                         ))
                     )}
