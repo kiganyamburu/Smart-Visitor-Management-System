@@ -9,7 +9,7 @@ import {
   FiLayers, 
   FiMenu
 } from "react-icons/fi";
-import { MdOutlineAdminPanelSettings } from "react-icons/md";
+//import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { FaUserCheck, FaClipboardList } from "react-icons/fa";
 
 const Sidebar = () => {
@@ -24,7 +24,7 @@ const Sidebar = () => {
     { name: "Visitors", path: "/dashboard/visitors", icon: <FaUserCheck /> },
     { name: "Attendance", path: "/dashboard/attendance", icon: <FaClipboardList /> },
     { name: "Report", path: "/dashboard/reports", icon: <FiBarChart2 /> },
-    { name: "Administrators", path: "/admins", icon: <MdOutlineAdminPanelSettings /> },
+   // { name: "Administrators", path: "/admins", icon: <MdOutlineAdminPanelSettings /> },
     { name: "Settings", path: "/dashboard/settings", icon: <FiSettings /> },
   ];
 

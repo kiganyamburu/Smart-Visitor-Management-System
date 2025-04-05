@@ -4,7 +4,7 @@ import  { jwtDecode } from "jwt-decode";
 interface User {
   id: string;
   name: string;
-  role: "super_admin" | "department_admin";
+  role: "ADMIN" | "user";
   department?: string; // Only for department admins
 }
 

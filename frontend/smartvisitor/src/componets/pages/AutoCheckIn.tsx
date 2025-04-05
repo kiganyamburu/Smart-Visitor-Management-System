@@ -1,8 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState,useContext } from "react";
 import Webcam from "react-webcam";
 import jsQR from "jsqr";
 import { FaCheckCircle, FaTimesCircle, FaCamera, FaSyncAlt } from "react-icons/fa";
 import ClipLoader from "react-spinners/ClipLoader";
+import { DepartmentContext } from "../../contexts/DepartmentContext";
 
 interface User {
     name: string;
@@ -16,15 +17,15 @@ interface QrCodeResponse {
 }
 
 const AutoCheckIn: React.FC = () => {
+    const { department } = useContext(DepartmentContext);
     const [qrCode, setQrCode] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [message, setMessage] = useState<string | null>(null);
-    const [user, setUser] = useState<User | null>(null);
     const [capturing, setCapturing] = useState<boolean>(false);
     const webcamRef = useRef<Webcam>(null);
 
     const checkInUser = async (urlcode: string): Promise<void> => {
-        console.log("Checking in user with QR code:", urlcode);
+        //console.log("Checking in user with QR code:", urlcode);
         setLoading(true);
         setMessage(null);
 
@@ -47,12 +48,10 @@ const AutoCheckIn: React.FC = () => {
                 return response.json();
             })
             .then((data: QrCodeResponse) => {
-                console.log("Parsed JSON response:", data);
+                //console.log("Parsed JSON response:", data);
                 if (data && data.name) {
-                    setUser(data.name);
-                    setMessage(`✅ Welcome, ${data.name}!`);
+                    setMessage(`✅ Welcome, ${data.name}! You just Checked-In to ${department} department.`);
                 } else {
-                    setUser(null);
                     setMessage("❌ Invalid QR Code");
                 }
             })
@@ -115,7 +114,7 @@ const AutoCheckIn: React.FC = () => {
     };
 
     return (
-        <div className="max-w-xl mx-auto mt-10 p-6 rounded-lg border border-gray-200 bg-gradient-to-r from-slate-200 to-slate-300 text-white shadow-lg">
+        <div className=" mx-auto mt-10 md:p-6 p-2 rounded-lg border border-gray-200 bg-gradient-to-r from-slate-200 to-slate-300 text-white shadow-lg">
             <h2 className="text-2xl font-semibold text-center text-gray-800">🎫 Auto Check-In</h2>
 
             <div className="mt-2 relative">
@@ -148,15 +147,6 @@ const AutoCheckIn: React.FC = () => {
                 <div className="mt-4 hidden p-3 bg-blue-600 rounded-md flex items-center gap-2 border border-blue-500">
                     <p className="text-white">
                         Scanned QR Code: <strong>{qrCode}</strong>
-                    </p>
-                </div>
-            )}
-
-            {user && (
-                <div className="mt-4 p-3 bg-green-600 rounded-md flex items-center gap-2 border border-green-500">
-                    <FaCheckCircle className="text-white text-xl" />
-                    <p className="text-white">
-                        ✅ Welcome, <strong>{user.name}</strong> from {user.department}!
                     </p>
                 </div>
             )}

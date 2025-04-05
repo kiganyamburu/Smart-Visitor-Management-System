@@ -14,7 +14,7 @@ const VisitorDashboard: React.FC = () => {
     }, []);
 
     return (
-        <div className="w-full max-w-4xl mx-auto flex flex-col items-center ">
+        <div className="w-full md:max-w-4xl mx-auto flex flex-col items-center ">
 
             {/* 📊 Live Visitor Count Card */}
             <div className="bg-white border border-gray-200 shadow-lg rounded-lg p-6 flex items-center gap-4">

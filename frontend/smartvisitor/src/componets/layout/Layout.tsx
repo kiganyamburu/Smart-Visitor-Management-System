@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+//import Footer from "../../Mainpages/Footer";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -42,6 +43,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <main className="flex-1 overflow-y-auto mt-14 p-2">{children}</main>
       </div>
     </div>
+    
   );
 };
 

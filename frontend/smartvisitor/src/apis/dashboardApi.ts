@@ -2,9 +2,10 @@ import axios from "axios";
 
 export const fetchDashboardStats = async () => {
   try {
-    const response = await axios.get("http://localhost:3000/dashboard/stats", {
+    const response = await axios.get("https://backend-lingering-flower-8936.fly.dev/api/v1/utils", {
       headers: { Accept: "application/json" },
     });
+    console.log("Dashboard stats response:", response.data);
     return response.data; // Replace with your real API
   } catch (error) {
     console.error("Error fetching dashboard stats:", error);

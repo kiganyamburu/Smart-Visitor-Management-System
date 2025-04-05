@@ -1,172 +1,259 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../contexts/AuthContext";
-import ClipLoader from "react-spinners/ClipLoader";
+import { Tabs, Form, Input, Button, Switch, Card, Space, Typography, Modal, message, Spin } from "antd";
 import axios from "axios";
+import { useAuth } from "../../contexts/AuthContext";
+
+const { Title } = Typography;
+const { TabPane } = Tabs;
 
 const dummyUserData = {
-    name: "John Doe",
-    email: "admin@example.com",
-    phone: "+123456789",
-    role: "admin",
-    password: "admin123",
+  name: "John Doe",
+  email: "admin@example.com",
+  phone: "+123456789",
+  role: "ADMIN",
+  password: "admin123",
 };
 
 const Settings: React.FC = () => {
-    const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState("profile");
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [darkMode, setDarkMode] = useState(false);
-    const [maintenanceMode, setMaintenanceMode] = useState(false);
-    const [twoFactorAuth, setTwoFactorAuth] = useState(false);
-    const [emailNotifications, setEmailNotifications] = useState(true);
-    const [smsNotifications, setSmsNotifications] = useState(false);
-    const [formData, setFormData] = useState({
-        name: dummyUserData.name,
-        email: dummyUserData.email,
-        phone: dummyUserData.phone,
-        password: "",
-    });
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("profile");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (!user || !user.id){
-            setError("user must be logged in")
-            return;
-        } 
+  // System Settings
+  const [darkMode, setDarkMode] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
 
-        const fetchUserDetails = async () => {
-            try {
-                setLoading(true);
-                console.log("Fetching user data...");
+  // Security Settings
+  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
+  const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
 
-                const response = await axios.get(`http://localhost:3000/api/admin/${user.id}`);
+  // Notifications
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
 
-                console.log("User data fetched:", response.data);
+  // Profile Form Data
+  const [form] = Form.useForm();
 
-                setFormData({
-                    name: response.data.name || dummyUserData.name,
-                    email: response.data.email || dummyUserData.email,
-                    phone: response.data.phone || dummyUserData.phone,
-                    password: "",
-                });
-            } catch (err) {
-                console.error("Error fetching user data:", err);
-                setFormData(dummyUserData);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUserDetails();
-    }, [user]);
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+  useEffect(() => {
+    if (!user || !user.id) {
+      setError("User must be logged in");
+      setLoading(false);
+      return;
+    }
+    const fetchUserDetails = async () => {
+      try {
+        setLoading(true);
+        //console.log("Fetching user data for ID:", user.id);
+        const profileEndpoint = `https://backend-lingering-flower-8936.fly.dev/api/v1/admin/${user.id}`;
+        console.log("Endpoint:", profileEndpoint);
+        const response = await axios.get(profileEndpoint);
+        console.log("User data fetched:", response.data);
+        form.setFieldsValue({
+          name: response.data.name || dummyUserData.name,
+          email: response.data.email || dummyUserData.email,
+          phone: response.data.phoneNumber || dummyUserData.phone,
+          password: "",
+        });
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        form.setFieldsValue(dummyUserData);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchUserDetails();
+  }, [user, form]);
 
-    if (!user) return <p className="text-red-600">User not authenticated.</p>;
-    if (loading) return <ClipLoader color="#2563eb" size={25} />;
-    if (error) return <p className="text-red-600">{error}</p>;
+  const handleProfileUpdate = async (values: any) => {
+    if (!user || !user.id) return;
+    try {
+      setLoading(true);
+      await axios.put(`https://backend-lingering-flower-8936.fly.dev/api/v1/admin/${user.id}`, values);
+      message.success("Profile updated successfully");
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      message.error("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="p-6 bg-white min-h-screen ">
-            <h1 className="text-xl font-bold text-blue-700 mb-6">Admin Settings</h1>
-            
-            {/* Tabs */}
-            <div className="flex gap-4 border-b pb-2 text-gray-600">
-                {[
-                    { key: "profile", label: "Profile Settings" },
-                    ...(user.role === "super_admin" ? [{ key: "users", label: "User & Role Management" }] : []),
-                    { key: "system", label: "System Settings" },
-                    { key: "security", label: "Security & Access" },
-                    { key: "notifications", label: "Notifications & Alerts" },
-                    { key: "data", label: "Data & Reports" },
-                ].map((tab) => (
-                    <button
-                        key={tab.key}
-                        className={`px-4 py-2 ${activeTab === tab.key ? "border-b-2 border-blue-600 text-blue-700 font-bold" : "hover:text-blue-500"}`}
-                        onClick={() => setActiveTab(tab.key)}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
+  const handleChangePassword = async () => {
+    if (!user || !user.id) return;
+    try {
+      await axios.put(`http://localhost:3000/api/admin/${user.id}/password`, { newPassword });
+      message.success("Password changed successfully");
+      setChangePasswordModalVisible(false);
+      setNewPassword("");
+    } catch (err) {
+      console.error("Error changing password:", err);
+      message.error("Failed to change password");
+    }
+  };
 
-            {/* Profile Settings */}
-            {activeTab === "profile" && (
-                <div className="mt-4">
-                    <h2 className="text-lg font-bold mb-4">Profile Details</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name" className="w-full p-2 border rounded" />
-                        <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address" className="w-full p-2 border rounded" />
-                        <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="Phone Number" className="w-full p-2 border rounded" />
-                        <input type="password" name="password" onChange={handleInputChange} placeholder="New Password" className="w-full p-2 border rounded" />
-                    </div>
-                    <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded">Update Profile</button>
-                </div>
-            )}
+  const handleDownloadLogs = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/logs/download`, { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "logs.csv");
+      document.body.appendChild(link);
+      link.click();
+    } catch (err) {
+      console.error("Error downloading logs:", err);
+      message.error("Failed to download logs");
+    }
+  };
 
-            {/* User & Role Management - Only for Super Admin */}
-            {activeTab === "users" && user.role === "super_admin" && (
-                <div className="mt-4">
-                    <h2 className="text-lg font-bold">User & Role Management</h2>
-                    <p>Manage user roles and access permissions.</p>
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2">Add New User</button>
-                </div>
-            )}
+  const handleExportData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/data/export`, { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "export_data.csv");
+      document.body.appendChild(link);
+      link.click();
+    } catch (err) {
+      console.error("Error exporting data:", err);
+      message.error("Failed to export data");
+    }
+  };
 
-            {/* System Settings */}
-            {activeTab === "system" && (
-                <div className="mt-4">
-                    <h2 className="text-lg font-bold">System Settings</h2>
-                    <label className="flex items-center gap-2 mt-2">
-                        <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
-                        Enable Dark Mode
-                    </label>
-                    <label className="flex items-center gap-2 mt-2">
-                        <input type="checkbox" checked={maintenanceMode} onChange={() => setMaintenanceMode(!maintenanceMode)} />
-                        Enable Maintenance Mode
-                    </label>
-                </div>
-            )}
+  if (!user) return <p style={{ color: "red" }}>User not authenticated.</p>;
+  if (loading) return <div style={{ textAlign: "center", padding: 20 }}><Spin /></div>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
-            {/* Security & Access */}
-            {activeTab === "security" && (
-                <div className="mt-4">
-                    <h2 className="text-lg font-bold">Security Settings</h2>
-                    <label className="flex items-center gap-2 mt-2">
-                        <input type="checkbox" checked={twoFactorAuth} onChange={() => setTwoFactorAuth(!twoFactorAuth)} />
-                        Enable Two-Factor Authentication
-                    </label>
-                    <button className="mt-2 bg-red-600 text-white px-4 py-2 rounded">Change Password</button>
-                </div>
-            )}
+  return (
+    <div style={{ padding: 24, background: "#fff", minHeight: "100vh" }}>
+      <Title level={4}>Admin Settings</Title>
+      <Tabs activeKey={activeTab} onChange={setActiveTab}>
+        {/* Profile Settings Tab */}
+        <TabPane tab="Profile Settings" key="profile">
+          <Card title="Profile Details">
+            <Form form={form} layout="vertical" onFinish={handleProfileUpdate}>
+              <Form.Item name="name" label="Full Name" rules={[{ required: true, message: "Please input your full name!" }]}>
+                <Input placeholder="Full Name" />
+              </Form.Item>
+              <Form.Item
+                name="email"
+                label="Email Address"
+                rules={[
+                  { required: true, message: "Please input your email!" },
+                  { type: "email", message: "Please enter a valid email!" },
+                ]}
+              >
+                <Input placeholder="Email Address" />
+              </Form.Item>
+              <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: "Please input your phone number!" }]}>
+                <Input placeholder="Phone Number" />
+              </Form.Item>
+              <Form.Item name="password" label="New Password">
+                <Input.Password placeholder="New Password" />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Update Profile
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        </TabPane>
 
-            {/* Notifications & Alerts */}
-            {activeTab === "notifications" && (
-                <div className="mt-4">
-                    <h2 className="text-lg font-bold">Notification Preferences</h2>
-                    <label className="flex items-center gap-2 mt-2">
-                        <input type="checkbox" checked={emailNotifications} onChange={() => setEmailNotifications(!emailNotifications)} />
-                        Email Notifications
-                    </label>
-                    <label className="flex items-center gap-2 mt-2">
-                        <input type="checkbox" checked={smsNotifications} onChange={() => setSmsNotifications(!smsNotifications)} />
-                        SMS Notifications
-                    </label>
-                </div>
-            )}
+        {/* User & Role Management (Only for Admin) */}
+        {user.role === "ADMIN" && (
+          <TabPane tab="User & Role Management" key="users">
+            <Card title="User & Role Management">
+              <p>Manage user roles and access permissions.</p>
+              <Button type="primary">Add New User</Button>
+              {/* Additional user management functionalities can be added here */}
+            </Card>
+          </TabPane>
+        )}
 
-            {/* Data & Reports */}
-            {activeTab === "data" && (
-                <div className="mt-4">
-                    <h2 className="text-lg font-bold">Data & Reports</h2>
-                    <button className="bg-gray-700 text-white px-4 py-2 rounded mt-2">Download Logs</button>
-                    <button className="bg-gray-700 text-white px-4 py-2 rounded mt-2 ml-2">Export Data</button>
-                </div>
-            )}
-        </div>
-    );
+        {/* System Settings Tab */}
+        <TabPane tab="System Settings" key="system">
+          <Card title="System Settings">
+            <Space direction="vertical" size="large">
+              <div>
+                <span style={{ marginRight: 8 }}>Enable Dark Mode</span>
+                <Switch checked={darkMode} onChange={setDarkMode} />
+              </div>
+              <div>
+                <span style={{ marginRight: 8 }}>Enable Maintenance Mode</span>
+                <Switch checked={maintenanceMode} onChange={setMaintenanceMode} />
+              </div>
+            </Space>
+          </Card>
+        </TabPane>
+
+        {/* Security & Access Tab */}
+        <TabPane tab="Security & Access" key="security">
+          <Card title="Security Settings">
+            <Space direction="vertical" size="large">
+              <div>
+                <span style={{ marginRight: 8 }}>Enable Two-Factor Authentication</span>
+                <Switch checked={twoFactorAuth} onChange={setTwoFactorAuth} />
+              </div>
+              <div>
+                <Button type="primary" danger onClick={() => setChangePasswordModalVisible(true)}>
+                  Change Password
+                </Button>
+              </div>
+            </Space>
+          </Card>
+        </TabPane>
+
+        {/* Notifications & Alerts Tab */}
+        <TabPane tab="Notifications & Alerts" key="notifications">
+          <Card title="Notification Preferences">
+            <Space direction="vertical" size="large">
+              <div>
+                <span style={{ marginRight: 8 }}>Email Notifications</span>
+                <Switch checked={emailNotifications} onChange={setEmailNotifications} />
+              </div>
+              <div>
+                <span style={{ marginRight: 8 }}>SMS Notifications</span>
+                <Switch checked={smsNotifications} onChange={setSmsNotifications} />
+              </div>
+            </Space>
+          </Card>
+        </TabPane>
+
+        {/* Data & Reports Tab */}
+        <TabPane tab="Data & Reports" key="data">
+          <Card title="Data & Reports">
+            <Space direction="vertical" size="middle">
+              <Button onClick={handleDownloadLogs} type="default">
+                Download Logs
+              </Button>
+              <Button onClick={handleExportData} type="default">
+                Export Data
+              </Button>
+            </Space>
+          </Card>
+        </TabPane>
+      </Tabs>
+
+      {/* Change Password Modal */}
+      <Modal
+        title="Change Password"
+        visible={changePasswordModalVisible}
+        onCancel={() => setChangePasswordModalVisible(false)}
+        onOk={handleChangePassword}
+        okText="Change Password"
+      >
+        <Input.Password
+          placeholder="Enter new password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+        />
+      </Modal>
+    </div>
+  );
 };
 
 export default Settings;

@@ -59,7 +59,7 @@ const AdminLogin = () => {
 
           {message && (
             <div
-              className={`text-sm p-2 rounded ${message.type === "error" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
+              className={`flex justify-center items-center text-sm p-2 rounded ${message.type === "error" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
                 }`}
             >
               {message.text}
