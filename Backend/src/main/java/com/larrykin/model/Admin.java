@@ -18,21 +18,20 @@ import java.util.Collections;
 @Document(collection = "admins")
 public class Admin implements AppUser {
     @Id
-    private String adminId;
+    private String id;
     @NotBlank(message = "fullName cannot be blank")
-    private String fullName;
+    private String name;
     @NotBlank(message = "PhoneNumber cannot be blank")
     private String phoneNumber;
     @Email
     @NotBlank(message = "email cannot be blank")
     private String email;
     @NotNull(message = "Role cannot be blank")
-    private Role role;
-    @NotBlank(message = "Password cannot be blank")
-    private String password;
+    private Role role= Role.ADMIN;
+    private String password = "";
 
     /**
-     GrantedAuthority interface is not directly serializable by Jackson, which is used by Spring Boot to convert JSON to Java objects and vice versa. We have to customize serialization and deserialization
+     * GrantedAuthority interface is not directly serializable by Jackson, which is used by Spring Boot to convert JSON to Java objects and vice versa. We have to customize serialization and deserialization
      */
     @Override
     @JsonIgnore //since authorities are derived form the role

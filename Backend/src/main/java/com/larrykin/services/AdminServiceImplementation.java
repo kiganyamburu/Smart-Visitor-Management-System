@@ -36,7 +36,7 @@ public class AdminServiceImplementation implements AdminService {
     @Override
     public Admin updateAdmin(String adminId, Admin updatedAdmin) {
         Admin existingAdmin = getAdminById(adminId);
-        existingAdmin.setFullName(updatedAdmin.getFullName());
+        existingAdmin.setName(updatedAdmin.getName());
         existingAdmin.setPhoneNumber(updatedAdmin.getPhoneNumber());
         existingAdmin.setRole(updatedAdmin.getRole());
         existingAdmin.setPassword(updatedAdmin.getPassword());

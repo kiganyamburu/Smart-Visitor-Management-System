@@ -35,7 +35,7 @@ public class ReceptionistServiceImplementation implements ReceptionistService {
     @Override
     public Receptionist updateReceptionist(String id, Receptionist receptionist) {
         Receptionist existingReceptionist = getReceptionistById(id);
-        existingReceptionist.setFullName(receptionist.getFullName());
+        existingReceptionist.setName(receptionist.getName());
         existingReceptionist.setEmail(receptionist.getEmail());
         existingReceptionist.setPhoneNumber(receptionist.getPhoneNumber());
         existingReceptionist.setAssignedLocation(receptionist.getAssignedLocation());

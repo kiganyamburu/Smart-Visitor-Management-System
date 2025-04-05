@@ -6,7 +6,6 @@ import com.larrykin.enums.Role;
 import com.larrykin.enums.Status;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,7 +20,7 @@ import java.util.Date;
 @Document(collection = "visitors")
 public class Visitor implements AppUser {
     @Id
-    private String visitorId;
+    private String id;
     @NotBlank(message = "FullName cannot be blank")
     private String name;
     @Email(message = "Should be an email")

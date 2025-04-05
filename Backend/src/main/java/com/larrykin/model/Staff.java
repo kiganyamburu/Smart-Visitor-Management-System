@@ -20,9 +20,9 @@ import java.util.Date;
 @Document(collection = "staff")
 public class Staff implements AppUser {
     @Id
-    private String hostId;
+    private String id;
     @NotBlank(message = "FullName cannot be null")
-    private String fullName;
+    private String name;
     @Email(message = "Should be an email")
     private String email;
     @NotBlank(message = "PhoneNumber cannot be null")

@@ -38,7 +38,7 @@ public class StaffServiceImplementation implements StaffService {
     @Override
     public Staff updateStaff(String id, Staff staff) {
         Staff existingStaff = getStaffById(id);
-        existingStaff.setFullName(staff.getFullName());
+        existingStaff.setName(staff.getName());
         existingStaff.setEmail(staff.getEmail());
         existingStaff.setPhoneNumber(staff.getPhoneNumber());
         existingStaff.setIdtype(staff.getIdtype());

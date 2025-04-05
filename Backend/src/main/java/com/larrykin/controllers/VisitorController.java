@@ -25,10 +25,13 @@ public class VisitorController {
     @PostMapping
     public ResponseEntity<Visitor> save(@Valid @RequestBody Visitor visitor) {
         //Check if user exists
-        Visitor exist = service.findVisitorByEmail(visitor.getEmail());
-        if (exist != null) {
-            ResponseEntity.badRequest().body("You are already Checked in");
-        }
+        try {
+            Visitor exist = service.findVisitorByEmail(visitor.getEmail());
+            if (exist != null) {
+                ResponseEntity.badRequest().body("You are already Checked in");
+            }
+        }catch (Exception ignored){}
+
         return ResponseEntity.ok(service.createVisitor(visitor));
     }
 

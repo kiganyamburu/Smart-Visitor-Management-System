@@ -34,7 +34,7 @@ public class VisitorServiceImpl implements VisitorService {
 
         // Save visitor to get the ID
         Visitor savedVisitor = visitorRepository.save(visitor);
-        String id = savedVisitor.getVisitorId();
+        String id = savedVisitor.getId();
         String url = UrlUtil.getBaseUrl() + "/api/v1/visitor/" + id;
         log.info("qrcode url: {}", url);
         String qrCode = qrCodeGenerator.generateQRCode(url);
@@ -97,12 +97,12 @@ public class VisitorServiceImpl implements VisitorService {
     public VisitorResponse checkin(String id) {
         Visitor visitor = visitorRepository.findById(id).orElseThrow(() -> new VisitorNotFoundException("Visitor with ID" + id + "not found"));
         VisitorResponse visitorResponse = new VisitorResponse();
-        visitorResponse.setVisitorId(visitor.getVisitorId());
+        visitorResponse.setVisitorId(visitor.getId());
         visitorResponse.setName(visitor.getName());
 
         //update checkin time.
         visitor.setCheckInTime(new Date());
-        updateVisitor(visitor.getVisitorId(), visitor);
+        updateVisitor(visitor.getId(), visitor);
 
         return visitorResponse;
     }

@@ -1,11 +1,14 @@
 package com.larrykin.model;
 
-import org.springframework.security.core.GrantedAuthority;
+   import com.larrykin.enums.Role;
+   import org.springframework.security.core.GrantedAuthority;
+   import java.util.Collection;
 
-import java.util.Collection;
-
-public interface AppUser {
-    String getEmail();
-    String getPassword();
-    Collection<? extends GrantedAuthority> getAuthorities();
-}
+   public interface AppUser {
+       String getEmail();
+       String getPassword();
+       Collection<? extends GrantedAuthority> getAuthorities();
+       String getId();
+       String getName();
+       Role getRole();
+   }
