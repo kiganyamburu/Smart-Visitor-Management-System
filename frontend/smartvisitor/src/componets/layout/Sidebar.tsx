@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+//import { useAuth } from "../../contexts/AuthContext";
 import { 
   FiHome, 
   FiUser, 
@@ -13,7 +13,7 @@ import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { FaUserCheck, FaClipboardList } from "react-icons/fa";
 
 const Sidebar = () => {
-  const { user } = useAuth();
+  //const { user } = useAuth();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(true);
 

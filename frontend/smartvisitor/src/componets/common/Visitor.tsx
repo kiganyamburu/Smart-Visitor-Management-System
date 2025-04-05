@@ -9,7 +9,7 @@ interface Visitor {
     purpose: string;
     company?: string;
     idVerification: string;
-    host: string;
+    staff: string;
     status: "Pre-registered" | "Not Logged In" | "Logged In (Manual)" | "Logged In (QR Code)" | "Checked Out";
     checkInTime?: string;
     checkOutTime?: string;
@@ -43,7 +43,7 @@ const VisitorManagement: React.FC = () => {
                 purpose: ["Meeting", "Interview", "Delivery", "Maintenance", "Training"][Math.floor(Math.random() * 5)],
                 company: i % 3 === 0 ? `Company ${i + 1}` : undefined,
                 idVerification: `ID${1000 + i}`,
-                host: `Host ${Math.floor(Math.random() * 10) + 1}`,
+                staff: `Host ${Math.floor(Math.random() * 10) + 1}`,
                 status: ["Pre-registered", "Not Logged In", "Logged In (Manual)", "Logged In (QR Code)", "Checked Out"][Math.floor(Math.random() * 5)] as Visitor["status"],
                 checkInTime: Math.random() > 0.5 ? new Date().toLocaleString() : undefined,
                 checkOutTime: Math.random() > 0.7 ? new Date().toLocaleString() : undefined,

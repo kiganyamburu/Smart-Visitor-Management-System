@@ -45,9 +45,9 @@ export default function Management() {
     const [activeComponent, setActiveComponent] = useState<ReactNode | null>(null);
 
     return (
-        <div className="bg-slate-300 text-gray-900 flex flex-col items-center w-full p-8 min-h-screen">
+        <div className="bg-slate-300 text-gray-900 flex flex-col items-center w-full md:p-8 p-4 min-h-screen">
             {activeComponent ? (
-                <div className="bg-slate-300 flex flex-col items-center w-full max-w-2xl p-6 rounded-lg shadow-md mt-5 border border-gray-200">
+                <div className="bg-slate-300 flex flex-col items-center w-full md:max-w-2xl p-6 rounded-lg shadow-md mt-5 border border-gray-200">
                     <button 
                         className="self-start mb-4 flex items-center text-lg font-bold text-gray-700 hover:text-gray-500 transition"
                         onClick={() => setActiveComponent(null)}

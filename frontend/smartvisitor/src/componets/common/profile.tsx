@@ -91,6 +91,7 @@ const AdminProfile = () => {
               alt="User Avatar"
               className="w-20 h-20 rounded-full border-4 border-indigo-500 shadow-md"
             />
+            {isEditing}
             <div className="ml-6">
               <h2 className="text-2xl font-bold text-gray-800">{profile?.fullName || "User"}</h2>
               <p className="text-gray-600 flex items-center text-lg">

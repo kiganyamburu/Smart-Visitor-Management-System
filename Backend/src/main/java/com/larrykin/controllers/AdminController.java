@@ -58,7 +58,7 @@ public class AdminController {
         // Encode password and save admin
         try {
             Admin _admin = new Admin();
-            _admin.setFullName(admin.getFullName());
+            _admin.setName(admin.getName());
             _admin.setPhoneNumber(admin.getPhoneNumber());
             _admin.setEmail(admin.getEmail());
             _admin.setRole(admin.getRole());
@@ -72,7 +72,6 @@ public class AdminController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(admin.getEmail());
-
             String jwt = jwtUtils.generateTokenFromUsername(userDetails);
 
             AuthResponse authResponse = new AuthResponse();
@@ -94,9 +93,11 @@ public class AdminController {
 
             if (authentication.isAuthenticated()) {
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmail());
+
                 String jwt = jwtUtils.generateTokenFromUsername(userDetails);
 
-                String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+                String authority = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+                String role = authority.replace("ROLE_", "");
 
                 AuthResponse authResponse = new AuthResponse();
                 authResponse.setJwtToken(jwt);

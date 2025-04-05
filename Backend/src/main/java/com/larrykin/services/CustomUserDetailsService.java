@@ -2,10 +2,9 @@ package com.larrykin.services;
 
 import com.larrykin.component.CustomUserDetails;
 import com.larrykin.exceptions.AdminNotFoundException;
-import com.larrykin.exceptions.HostNotFoundException;
+import com.larrykin.exceptions.StaffNotFoundException;
 import com.larrykin.exceptions.ReceptionistNotFoundException;
 import com.larrykin.exceptions.VisitorNotFoundException;
-import com.larrykin.model.Admin;
 import com.larrykin.model.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private AdminService adminService;
     @Autowired
-    private HostService hostService;
+    private StaffService staffService;
     @Autowired
     private ReceptionistService receptionistService;
     @Autowired
@@ -35,9 +34,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         if (user == null) {
             try {
-                user = hostService.findHostByEmail(username);
-            } catch (HostNotFoundException ignored) {
-                //Host not found , try next service
+                user = staffService.findStaffByEmail(username);
+            } catch (StaffNotFoundException ignored) {
+                //Staff not found , try next service
             }
         }
 

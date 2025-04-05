@@ -8,7 +8,7 @@ const PreRegister: React.FC = () => {
         name: "",
         email: "",
         phone: "",
-        idType: "National ID",
+        idType: "NATIONAL_ID",
         idNumber: "",
         purpose: "",
     });
@@ -28,16 +28,12 @@ const PreRegister: React.FC = () => {
         setSuccess(null);
 
         try {
-            const response = await axios.post("http://localhost:3000/api/visitors/register", formData);
+            const response = await axios.post("https://backend-lingering-flower-8936.fly.dev/api/v1/visitor", formData);
+            console.log(response)
             const visitorId = response.data.visitorId;
-            const qrCodeUrl = `http://localhost:3000/api/visitors/qrcode/${visitorId}`;
-
+            const qrCodeUrl = `https://backend-lingering-flower-8936.fly.dev/api/v1/visitor/${visitorId}`;
+            //console.log(qrCode)
             setQrCode(qrCodeUrl);
-
-            await axios.post("http://localhost:3000/api/visitors/send-email", {
-                email: formData.email,
-                qrCodeUrl
-            });
 
             setSuccess("Registration successful! QR Code has been sent to your email.");
         } catch (err) {
@@ -49,8 +45,8 @@ const PreRegister: React.FC = () => {
     };
 
     return (
-        <div className="p-6 bg-white flex flex-col items-center">
-            <h1 className="text-2xl font-bold text-blue-700 mb-6">Visitor Pre-Registration</h1>
+        <div className="p-4 rounded-lg bg-white flex flex-col md:items-center">
+            <h1 className="text-2xl font-bold text-blue-700 mb-3 mt-3">Visitor Pre-Registration</h1>
 
             <form onSubmit={handleSubmit} className="w-full max-w-md p-4 border rounded-lg shadow-lg">
                 <div className="flex flex-wrap gap-4">
@@ -98,7 +94,7 @@ const PreRegister: React.FC = () => {
             {success && <p className="text-green-600 mt-4">{success}</p>}
 
             {qrCode && (
-                <div className="mt-6 text-center">
+                <div className="mt-6 text-center flex justify-center items-center flex-col">
                     <h2 className="text-lg font-bold">Your QR Code</h2>
                     <QRCodeCanvas value={qrCode} size={200} className="mt-4" />
                     <p className="text-gray-600 mt-2">Scan this QR code at the reception for a smooth check-in.</p>

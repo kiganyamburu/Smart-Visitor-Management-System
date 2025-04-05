@@ -19,8 +19,9 @@ const AdminLogin = () => {
     try {
       const response = await loginAdmin(email, password);
       setMessage({ text: "Login successful!", type: "success" });
-      localStorage.setItem("token", response.token);
-      setTimeout(() => navigate("/admin/dashboard"), 1000);
+      console.log("response", response);
+      localStorage.setItem("token", response.jwtToken);
+      setTimeout(() => navigate("/dashboard"), 1000);
     } catch (error: any) {
       setMessage({ text: "Invalid credentials. Please try again.", type: "error" });
       setEmail("");

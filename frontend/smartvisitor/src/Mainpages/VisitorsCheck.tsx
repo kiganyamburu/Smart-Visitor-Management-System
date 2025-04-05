@@ -23,7 +23,7 @@ export default function VisitorManagement() {
 
     useEffect(() => {
         document.title = `Welcome to ${department} Department`;
-    }, [department]);
+    }, [visitorId]);
 
     const checkOut = () => {
         setLoading(true);

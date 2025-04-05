@@ -1,5 +1,6 @@
 package com.larrykin.jwt;
 
+import com.larrykin.component.CustomUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -42,14 +43,21 @@ public class JwtUtils {
 
     public String generateTokenFromUsername(UserDetails userDetails) {
         log.info("JwtUtils:: Generating JWT token");
-        String username = userDetails.getUsername();
+        CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+        String id = customUserDetails.getId();
+        String username = customUserDetails.getName();
+        String role = customUserDetails.getRole().name();
+
         return Jwts.builder()
                 .setSubject(username)
+                .claim("id", id)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
                 .signWith(key)
                 .compact();
     }
+
 
     public String getUsernameFromJwtToken(String token) {
         log.info("JwtUtils:: Extracting username JWT token");

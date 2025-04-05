@@ -1,5 +1,6 @@
 package com.larrykin.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.larrykin.enums.AssignedLocation;
 import com.larrykin.enums.Role;
 import jakarta.validation.constraints.Email;
@@ -13,15 +14,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Data
 @Document(collection = "receptionists")
 public class Receptionist implements AppUser {
     @Id
-    private String receptionistId;
+    private String id;
     @NotBlank(message = "FullName Cannot be blank")
-    private String fullName;
+    private String name;
     @Email(message = "Should be an email")
     private String email;
     @NotBlank(message = "Phone number cannot be blank")
@@ -33,7 +33,8 @@ public class Receptionist implements AppUser {
     private String password;
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" +role.name()));
     }
 }

@@ -2,6 +2,7 @@ package com.larrykin.controllers;
 
 import com.larrykin.Request.EmailRequest;
 import com.larrykin.services.EmailService;
+import com.larrykin.services.VisitorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +21,8 @@ public class EmailController {
 
     @Autowired
     private EmailService service;
+    @Autowired
+    private VisitorService visitorService;
 
     @Operation(
             description = "Send Email endpoint",
@@ -50,8 +53,22 @@ public class EmailController {
             return ResponseEntity.ok("Email sent Successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error sending email");
+        }
+    }
 
+    @PostMapping("/send-email-qrcode")
+    public ResponseEntity<String> sendEmailQrcode(@Valid @RequestBody EmailRequest emailRequest) {
+        try {
+            String visitorId = emailRequest.getVisitorId();
+            String qrCodeBase64 = visitorService.getVisitorById(visitorId).getQrCode();
 
+            Boolean isSent = service.sendEmailWithAttachment(emailRequest, qrCodeBase64);
+            if (!isSent) {
+                return ResponseEntity.badRequest().body("Error Sending Email");
+            }
+            return ResponseEntity.ok("Email sent Successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error sending email");
         }
     }
 }

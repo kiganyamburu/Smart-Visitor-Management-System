@@ -1,14 +1,11 @@
 package com.larrykin.component;
 
-import com.larrykin.model.Admin;
+import com.larrykin.enums.Role;
 import com.larrykin.model.AppUser;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
     private AppUser user;
@@ -31,6 +28,19 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return user.getEmail();
+    }
+
+
+    public String getId() {
+        return user.getId();
+    }
+
+    public String getName() {
+        return user.getName();
+    }
+
+    public Role getRole() {
+        return user.getRole();
     }
 
     @Override
