@@ -83,7 +83,7 @@ const Settings: React.FC = () => {
   const handleChangePassword = async () => {
     if (!user || !user.id) return;
     try {
-      await axios.put(`http://localhost:3000/api/admin/${user.id}/password`, { newPassword });
+      await axios.put(`https://backend-lingering-flower-8936.fly.dev/api/admin/${user.id}/password`, { newPassword });
       message.success("Password changed successfully");
       setChangePasswordModalVisible(false);
       setNewPassword("");
@@ -95,7 +95,7 @@ const Settings: React.FC = () => {
 
   const handleDownloadLogs = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/logs/download`, { responseType: "blob" });
+      const response = await axios.get(`https://backend-lingering-flower-8936.fly.dev/api/logs/download`, { responseType: "blob" });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -110,7 +110,7 @@ const Settings: React.FC = () => {
 
   const handleExportData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/data/export`, { responseType: "blob" });
+      const response = await axios.get(`https://backend-lingering-flower-8936.fly.dev/api/data/export`, { responseType: "blob" });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;

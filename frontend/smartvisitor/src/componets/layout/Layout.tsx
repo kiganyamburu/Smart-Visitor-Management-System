@@ -40,7 +40,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto mt-14 p-2">{children}</main>
+        <main className="flex-1 overflow-y-auto mt-16 p-2 ">{children}</main>
       </div>
     </div>
     

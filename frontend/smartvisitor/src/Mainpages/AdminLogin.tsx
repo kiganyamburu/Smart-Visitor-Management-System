@@ -1,124 +1,200 @@
 import { useState } from "react";
-import { loginAdmin } from "../apis/authApi";
-import { ClipLoader } from "react-spinners";
 import { useNavigate } from "react-router-dom";
+import { loginAdmin } from "../apis/authApi";
 import logo from "../assets/smlogo.png";
+import {
+  Row,
+  Col,
+  Typography,
+  Form,
+  Input,
+  Button,
+  Alert,
+  Layout,
+  Space,
+  Card,
+  Divider,
+} from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
+const { Content } = Layout;
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (values: any) => {
     setLoading(true);
     setMessage(null);
 
     try {
-      const response = await loginAdmin(email, password);
+      const response = await loginAdmin(values.email, values.password);
       setMessage({ text: "Login successful!", type: "success" });
-      console.log("response", response);
       localStorage.setItem("token", response.jwtToken);
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (error: any) {
       setMessage({ text: "Invalid credentials. Please try again.", type: "error" });
-      setEmail("");
-      setPassword("");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Left Side (Branding Section) */}
-      <div className="hidden md:flex md:w-1/2 bg-teal-700 flex-col justify-center items-center text-white p-6 animate-fade-in">
-        <img
-          src={logo}
-          alt="Logo"
-          className="w-42 mb-2 animate-zoom-in"
-        />
+    <Layout style={{ minHeight: "100vh" }}>
+      <Row style={{ flex: 1 }}>
+        {/* Left branding panel */}
+        <Col
+          xs={0}
+          md={12}
+          style={{
+            backgroundColor: "#008080",
+            color: "#fff",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "60px 40px",
+          }}
+        >
+          <img
+            src={logo}
+            alt="Logo"
+            style={{
+              maxWidth: "200px",
+              marginBottom: 32,
+              borderRadius: 16,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+            }}
+          />
+          <Title style={{ color: "#fff", textAlign: "center" }} level={2}>
+            Welcome to Smart Visitor System
+          </Title>
+          <Text
+            style={{
+              color: "#fff",
+              textAlign: "center",
+              maxWidth: 420,
+              fontSize: 16,
+              marginTop: 16,
+              lineHeight: 1.7,
+            }}
+          >
+            Manage your visitors efficiently and securely with our intuitive platform.
+          </Text>
+        </Col>
 
-        <h1 className="text-3xl font-bold text-center animate-slide-up">
-          Welcome to Smart Visitor System
-        </h1>
-
-        <p className="text-lg mt-3 text-center px-6 animate-fade-in delay-100">
-          Manage your visitors efficiently and securely.
-        </p>
-      </div>
-
-
-      {/* Right Side (Login Form) */}
-      <div className="w-full md:w-2/3 flex justify-center items-center p-6 md:p-8">
-        <div className="bg-gray-100 shadow-2xl rounded-lg p-6 md:p-8 w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-teal-700 text-center">Admin Login</h2>
-          <p className="text-gray-600 text-sm text-center mb-4">Enter your credentials to continue.</p>
-
-          {message && (
-            <div
-              className={`flex justify-center items-center text-sm p-2 rounded ${message.type === "error" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
-                }`}
+        {/* Right login form */}
+        <Col
+          xs={24}
+          md={12}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "48px 24px",
+            background: "#f5f7fa",
+          }}
+        >
+          <Content style={{ width: "100%", maxWidth: 420 }}>
+            <Card
+              bordered={false}
+              style={{
+                padding: "32px 24px",
+                borderRadius: 16,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                background: "#fff",
+              }}
             >
-              {message.text}
-            </div>
-          )}
+              <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+                <div style={{ textAlign: "center" }}>
+                  <Title level={3} style={{ color: "#008080", marginBottom: 0 }}>
+                    Admin Login
+                  </Title>
+                  <Text type="secondary" style={{ fontSize: 14 }}>
+                    Enter your credentials to continue
+                  </Text>
+                </div>
 
-          <form className="space-y-4" onSubmit={handleLogin}>
-            <div>
-              <label className="block text-gray-700 text-sm">Username:</label>
-              <input
-                type="email"
-                className="w-full mt-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:border-teal-400"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+                {message && (
+                  <Alert
+                    message={message.text}
+                    type={message.type}
+                    showIcon
+                    style={{ marginTop: 4 }}
+                  />
+                )}
 
-            <div>
-              <label className="block text-gray-700 text-sm">Password:</label>
-              <input
-                type="password"
-                className="w-full mt-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:border-teal-400"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+                <Form form={form} layout="vertical" onFinish={handleLogin}>
+                  <Form.Item
+                    label="Email"
+                    name="email"
+                    rules={[
+                      { required: true, message: "Please input your email!" },
+                      { type: "email", message: "Invalid email format" },
+                    ]}
+                  >
+                    <Input size="large" placeholder="admin@example.com" />
+                  </Form.Item>
 
-            <button
-              type="submit"
-              className="w-full mt-4 p-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition flex justify-center"
-              disabled={loading}
-            >
-              {loading ? <ClipLoader size={20} color="#ffffff" /> : "Log In"}
-            </button>
-          </form>
+                  <Form.Item
+                    label="Password"
+                    name="password"
+                    rules={[{ required: true, message: "Please input your password!" }]}
+                  >
+                    <Input.Password size="large" placeholder="••••••••" />
+                  </Form.Item>
 
-          <div className="mt-4 text-sm text-center">
-            <a href="/forgot-password" className="text-teal-500 hover:underline">
-              Forgot Username? | 
-            </a>
-            <a href="/register" className="ml-2 text-teal-500 hover:underline">
-              Register?
-            </a>
-          </div>
+                  <Form.Item style={{ marginBottom: 0 }}>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      block
+                      size="large"
+                      disabled={loading}
+                    >
+                      {loading ? <LoadingOutlined spin /> : "Log In"}
+                    </Button>
+                  </Form.Item>
+                </Form>
 
-          <footer className="mt-6 text-xs text-gray-500 text-center">
-            <p>
-              Powered by <span className="text-teal-600">Smart Visitor System</span>
-            </p>
-            <p className="mt-1">
-              <a href="/terms" className="hover:underline">Terms of Use</a> |{" "}
-              <a href="/privacy" className="hover:underline">Privacy Policy</a>
-            </p>
-          </footer>
-        </div>
-      </div>
-    </div>
+                <div style={{ textAlign: "center", fontSize: 13, marginTop: 8 }}>
+                  <a href="/forgot-password" style={{ color: "#008080" }}>
+                    Forgot Username?
+                  </a>{" "}
+                  |{" "}
+                  <a href="/register" style={{ color: "#008080" }}>
+                    Register
+                  </a>
+                </div>
+
+                <Divider style={{ margin: "24px 0 12px" }} />
+
+                <footer style={{ textAlign: "center", fontSize: 12, color: "#999" }}>
+                  <p>
+                    Powered by{" "}
+                    <span style={{ color: "#008080", fontWeight: 500 }}>
+                      Smart Visitor System
+                    </span>
+                  </p>
+                  <p>
+                    <a href="/terms" style={{ color: "#999" }}>
+                      Terms
+                    </a>{" "}
+                    |{" "}
+                    <a href="/privacy" style={{ color: "#999" }}>
+                      Privacy
+                    </a>
+                  </p>
+                </footer>
+              </Space>
+            </Card>
+          </Content>
+        </Col>
+      </Row>
+    </Layout>
   );
 };
 

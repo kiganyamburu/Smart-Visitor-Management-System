@@ -16,7 +16,7 @@ const Reports: React.FC = () => {
   const [reportType, setReportType] = useState("daily");
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/reports")
+    axios.get("https://backend-lingering-flower-8936.fly.dev/api/reports")
       .then((response) => {
         setData(response.data);
       })
@@ -37,7 +37,7 @@ const Reports: React.FC = () => {
   }, [startDate, endDate, data]);
 
   const handleFilterChange = () => {
-    axios.get(`http://localhost:3000/api/reports?type=${reportType}`)
+    axios.get(`https://backend-lingering-flower-8936.fly.dev/api/reports?type=${reportType}`)
       .then((response) => {
         setFilteredData(response.data);
       })

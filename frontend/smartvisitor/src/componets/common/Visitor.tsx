@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, Select, DatePicker, notification } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  notification,
+} from "antd";
+import dayjs from "dayjs";
+
+const { Option } = Select;
 
 interface Visitor {
   id: string;
@@ -8,17 +20,20 @@ interface Visitor {
   email?: string;
   visitorType: string;
   purpose: string;
-  company?: string;
   idVerification: string;
   host: string;
-  status: "Pre-registered" | "Not Logged In" | "Logged In (Manual)" | "Logged In (QR Code)" | "Checked Out";
+  status:
+    | "Pre-registered"
+    | "Not Logged In"
+    | "Logged In (Manual)"
+    | "Logged In (QR Code)"
+    | "Checked Out";
   checkInTime?: string;
   checkOutTime?: string;
   image?: string;
   qrCode?: string;
+  gender?: "male" | "female";
 }
-
-const { Option } = Select;
 
 const VisitorManagement: React.FC = () => {
   const [visitors, setVisitors] = useState<Visitor[]>([]);
@@ -29,55 +44,116 @@ const VisitorManagement: React.FC = () => {
 
   useEffect(() => {
     fetchVisitors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newVisitor]);
 
   const fetchVisitors = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://backend-lingering-flower-8936.fly.dev/api/v1/visitor");
+      const response = await fetch(
+        "https://backend-lingering-flower-8936.fly.dev/api/v1/visitor"
+      );
       const data = await response.json();
       setVisitors(data);
     } catch (error) {
-      notification.error({ message: "Error fetching visitors", description: "Unable to fetch visitor data." });
+      notification.error({
+        message: "Error fetching visitors",
+        description: "Unable to fetch visitor data.",
+      });
     }
     setLoading(false);
   };
 
   const handleCheckIn = async (id: string, method: "Manual" | "QR Code") => {
-    setVisitors((prev) =>
-      prev.map((v) =>
-        v.id === id ? { ...v, status: `Logged In (${method})`, checkInTime: new Date().toLocaleString() } : v
-      )
+    const updatedVisitors: Visitor[] = visitors.map((v) =>
+      v.id === id
+        ? ({
+            ...v,
+            status: `Logged In (${method})`,
+            checkInTime: new Date().toISOString(),
+          } as Visitor)
+        : v
     );
-    await fetch(`https://backend-lingering-flower-8936.fly.dev/v1/api/visitor/manual-checkin`, { method: "POST", body: JSON.stringify({ method }) });
+    setVisitors(updatedVisitors);
+
+    await fetch(
+      `https://backend-lingering-flower-8936.fly.dev/v1/api/visitor/manual-checkin`,
+      {
+        method: "POST",
+        body: JSON.stringify({ method }),
+      }
+    );
   };
 
   const handleCheckOut = async (id: string) => {
-    setVisitors((prev) =>
-      prev.map((v) =>
-        v.id === id ? { ...v, status: "Checked Out", checkOutTime: new Date().toLocaleString() } : v
-      )
+    const updatedVisitors: Visitor[] = visitors.map((v) =>
+      v.id === id
+        ? ({
+            ...v,
+            status: "Checked Out",
+            checkOutTime: new Date().toISOString(),
+          } as Visitor)
+        : v
     );
-    await fetch(`https://backend-lingering-flower-8936.fly.dev/api/v1/visitor/${id}/checkout`, { method: "POST" });
+    setVisitors(updatedVisitors);
+
+    await fetch(
+      `https://backend-lingering-flower-8936.fly.dev/api/v1/visitor/${id}/checkout`,
+      {
+        method: "POST",
+      }
+    );
   };
 
   const handleAddVisitor = async (values: any) => {
-    const newVisitorData = { ...values, id: String(visitors.length + 1), status: "Pre-registered" } as Visitor;
+    const newVisitorData = {
+      ...values,
+      id: String(visitors.length + 1),
+      status: "Pre-registered",
+    } as Visitor;
+
+    // Set default image based on gender selection
+    if (values.gender === "male") {
+      newVisitorData.image = "https://randomuser.me/api/portraits/men/1.jpg";
+    } else if (values.gender === "female") {
+      newVisitorData.image = "https://randomuser.me/api/portraits/women/1.jpg";
+    } else {
+      newVisitorData.image = "https://i.pravatar.cc/100";
+    }
+
     setVisitors([...visitors, newVisitorData]);
     setNewVisitor({});
     setShowForm(false);
-    await fetch("https://b3a7-102-213-241-210.ngrok-free.app/api/v1/visitors", { method: "POST", body: JSON.stringify(newVisitorData) });
+
+    await fetch(
+      "https://backend-lingering-flower-8936.fly.dev/api/v1/visitors",
+      {
+        method: "POST",
+        body: JSON.stringify(newVisitorData),
+      }
+    );
   };
 
   const columns = [
     {
       title: "Image",
       dataIndex: "image",
-      render: (image: string) => <img src={image || "https://i.pravatar.cc/100"} alt="Visitor" className="w-12 h-12 rounded-full" />,
+      render: (image: string) => (
+        <img
+          src={image || "https://i.pravatar.cc/100"}
+          alt="Visitor"
+          className="w-12 h-12 rounded-full"
+        />
+      ),
     },
     {
       title: "Name",
       dataIndex: "name",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      render: (email?: string) => email || "-",
     },
     {
       title: "Phone",
@@ -88,6 +164,11 @@ const VisitorManagement: React.FC = () => {
       dataIndex: "purpose",
     },
     {
+      title: "Gender",
+      dataIndex: "gender",
+      render: (gender?: string) => gender || "-",
+    },
+    {
       title: "Status",
       dataIndex: "status",
       render: (status: string) => <span>{status}</span>,
@@ -95,24 +176,35 @@ const VisitorManagement: React.FC = () => {
     {
       title: "Check-In Time",
       dataIndex: "checkInTime",
-      render: (time: string) => time || "-",
+      render: (time?: string) =>
+        time ? dayjs(time).format("YYYY-MM-DD HH:mm") : "-",
     },
     {
       title: "Check-Out Time",
       dataIndex: "checkOutTime",
-      render: (time: string) => time || "-",
+      render: (time?: string) =>
+        time ? dayjs(time).format("YYYY-MM-DD HH:mm") : "-",
     },
     {
       title: "Actions",
       render: (_: any, record: Visitor) => (
         <div>
           {record.status === "Pre-registered" && (
-            <Button onClick={() => handleCheckIn(record.id, "Manual")} type="primary" size="small" className="mr-2">
+            <Button
+              onClick={() => handleCheckIn(record.id, "Manual")}
+              type="primary"
+              size="small"
+              className="mr-2"
+            >
               Check In
             </Button>
           )}
           {record.status.startsWith("Logged In") && !record.checkOutTime && (
-            <Button onClick={() => handleCheckOut(record.id)} type="default" size="small">
+            <Button
+              onClick={() => handleCheckOut(record.id)}
+              type="default"
+              size="small"
+            >
               Check Out
             </Button>
           )}
@@ -123,7 +215,9 @@ const VisitorManagement: React.FC = () => {
 
   return (
     <div className="p-6 bg-white min-h-screen mt-4">
-      <h1 className="text-xl font-bold text-blue-700 mb-6">Visitor Management</h1>
+      <h1 className="text-xl font-bold text-blue-700 mb-6">
+        Visitor Management
+      </h1>
       <Button type="primary" onClick={() => setShowForm(true)} className="mb-4">
         + Add Visitor
       </Button>
@@ -140,7 +234,7 @@ const VisitorManagement: React.FC = () => {
 
       <Modal
         title="Add New Visitor"
-        visible={showForm}
+        open={showForm}
         onCancel={() => setShowForm(false)}
         footer={null}
         width={500}
@@ -151,19 +245,40 @@ const VisitorManagement: React.FC = () => {
           onFinish={handleAddVisitor}
           initialValues={{ visitorType: "Guest" }}
         >
-          <Form.Item label="Full Name" name="name" rules={[{ required: true, message: "Please enter the visitor's name" }]}>
+          <Form.Item
+            label="Full Name"
+            name="name"
+            rules={[{ required: true, message: "Please enter the visitor's name" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="Phone Number" name="phone" rules={[{ required: true, message: "Please enter the phone number" }]}>
+          <Form.Item
+            label="Phone Number"
+            name="phone"
+            rules={[{ required: true, message: "Please enter the phone number" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="Purpose" name="purpose" rules={[{ required: true, message: "Please enter the purpose of the visit" }]}>
+          <Form.Item label="Email" name="email">
+            <Input type="email" />
+          </Form.Item>
+          <Form.Item
+            label="Purpose"
+            name="purpose"
+            rules={[{ required: true, message: "Please enter the purpose of the visit" }]}
+          >
             <Input />
           </Form.Item>
           <Form.Item label="Visitor Type" name="visitorType">
             <Select>
               <Option value="Guest">Guest</Option>
               <Option value="Contractor">Contractor</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item label="Gender" name="gender" rules={[{ required: true, message: "Please select a gender" }]}>
+            <Select placeholder="Select Gender">
+              <Option value="male">Male</Option>
+              <Option value="female">Female</Option>
             </Select>
           </Form.Item>
           <Form.Item label="Check-In Time" name="checkInTime">

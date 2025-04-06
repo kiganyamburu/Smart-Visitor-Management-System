@@ -1,7 +1,11 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
-import ClipLoader from "react-spinners/ClipLoader";
+import { Form, Input, Button, Select, Row, Col, Typography, Alert, Card } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import { DepartmentContext } from "../../contexts/DepartmentContext";
+
+const { Title } = Typography;
+const { Option } = Select;
 
 interface CheckInData {
   name: string;
@@ -18,7 +22,6 @@ interface CheckInData {
 }
 
 const ManualCheckIn: React.FC = () => {
-  // Get department from context
   const { department } = useContext(DepartmentContext);
 
   const initialData: CheckInData = {
@@ -31,17 +34,15 @@ const ManualCheckIn: React.FC = () => {
     status: "CHECKED_IN",
     hostId: "",
     gender: "",
-    department: department, // initialize with context value
+    department: department,
   };
 
   const [formData, setFormData] = useState<CheckInData>(initialData);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (changedValues: Partial<CheckInData>) => {
+    setFormData((prev) => ({ ...prev, ...changedValues }));
   };
 
   const validateForm = (): string | null => {
@@ -53,8 +54,7 @@ const ManualCheckIn: React.FC = () => {
     return null;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setMessage(null);
 
     const errorMessage = validateForm();
@@ -65,14 +65,13 @@ const ManualCheckIn: React.FC = () => {
 
     setLoading(true);
     try {
-      // Ensure department is always up-to-date from context
       const payload = { ...formData, department };
       await axios.post(
         "https://backend-lingering-flower-8936.fly.dev/api/v1/visitor/manual-checkin",
         payload
       );
       setMessage(`✅ ${formData.name} has been checked in successfully!`);
-      setFormData({ ...initialData, department }); // reset while preserving department
+      setFormData({ ...initialData, department });
     } catch (error) {
       console.error("Check-in failed:", error);
       setMessage("❌ Error checking in. Please try again.");
@@ -82,125 +81,105 @@ const ManualCheckIn: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="w-full bg-white shadow-2xl rounded-xl border border-gray-200 md:p-8 p-2">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          📝 Manual Check-In
-        </h2>
+    <div className="min-h-screen md:p-6 p-2 bg-gradient-to-br from-purple-100 to-white">
+      <Card
+        className="w-full max-w-[1200px] mx-auto"
+        bordered={false}
+        style={{
+          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+          borderRadius: "1rem",
+        }}
+      >
+        <Title level={4} style={{ textAlign: "center", color: "#722ed1" }}>
+          📝 Manual Visitor Check-In
+        </Title>
 
         {message && (
-          <div
-            className={`mb-4 p-3 rounded-md text-center border ${
-              message.includes("✅")
-                ? "bg-green-100 text-green-700 border-green-300"
-                : "bg-red-100 text-red-700 border-red-300"
-            }`}
-          >
-            {message}
-          </div>
+          <Alert
+            message={message.replace(/^✅|^❌/, "")}
+            type={message.includes("✅") ? "success" : "error"}
+            showIcon
+            className="my-4"
+          />
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name, Email, Phone */}
-          <div>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="John Doe"
-              required
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
-            />
-          </div>
-          <div>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="john@example.com"
-              required
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
-            />
-          </div>
-          <div>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="1234567890"
-              required
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
-            />
-          </div>
+        <Form
+          layout="vertical"
+          onFinish={handleSubmit}
+          initialValues={formData}
+          onValuesChange={( all) => handleChange(all)}
+        >
+          <Row gutter={24}>
+            <Col xs={24} md={12}>
+              <Form.Item label="Full Name" name="name" rules={[{ required: true }]}>
+                <Input placeholder="John Doe" />
+              </Form.Item>
+            </Col>
 
-          {/* ID Type and ID Number */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1">
-              <select
-                name="idType"
-                value={formData.idType}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
-              >
-                <option value="NATIONAL_ID">National ID</option>
-                <option value="PASSPORT">Passport</option>
-                <option value="DRIVER_LICENSE">Driver's License</option>
-              </select>
-            </div>
-            <div className="flex-1">
-              <input
-                type="text"
-                name="idNumber"
-                value={formData.idNumber}
-                onChange={handleChange}
-                placeholder="ID Number"
-                required
-                className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
-              />
-            </div>
-          </div>
+            <Col xs={24} md={12}>
+              <Form.Item label="Email" name="email" rules={[{ required: true, type: "email" }]}>
+                <Input placeholder="john@example.com" />
+              </Form.Item>
+            </Col>
 
-          {/* Gender Selector and Department Display */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1">
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                required
-                className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
-              >
-                <option value="" disabled>
-                  Select Gender
-                </option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
-            <div className="flex-1">
-              <input
-                type="text"
-                name="department"
-                value={department}
-                readOnly
-                className="w-full p-3 border rounded-md bg-gray-100 cursor-not-allowed"
-              />
-            </div>
-          </div>
+            <Col xs={24} md={12}>
+              <Form.Item label="Phone Number" name="phone" rules={[{ required: true }]}>
+                <Input placeholder="0712345678" />
+              </Form.Item>
+            </Col>
 
-          <button
-            type="submit"
-            className="w-full bg-purple-600 text-white p-3 rounded-md hover:bg-purple-700 transition flex justify-center items-center gap-2"
-            disabled={loading}
-          >
-            {loading ? <ClipLoader color="#fff" size={20} /> : "Check In"}
-          </button>
-        </form>
-      </div>
+            <Col xs={24} md={12}>
+              <Form.Item label="ID Type" name="idType" rules={[{ required: true }]}>
+                <Select>
+                  <Option value="NATIONAL_ID">National ID</Option>
+                  <Option value="PASSPORT">Passport</Option>
+                  <Option value="DRIVER_LICENSE">Driver's License</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item label="ID Number" name="idNumber" rules={[{ required: true }]}>
+                <Input placeholder="ID123456" />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item label="Gender" name="gender" rules={[{ required: true }]}>
+                <Select placeholder="Select gender">
+                  <Option value="MALE">Male</Option>
+                  <Option value="FEMALE">Female</Option>
+                  <Option value="OTHER">Other</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item label="Department">
+                <Input value={department} readOnly disabled />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              icon={loading ? <LoadingOutlined /> : undefined}
+              block
+              size="large"
+              style={{
+                backgroundColor: "#722ed1",
+                borderColor: "#722ed1",
+                marginTop: "1rem",
+              }}
+            >
+              {loading ? "Checking In..." : "Check In"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };

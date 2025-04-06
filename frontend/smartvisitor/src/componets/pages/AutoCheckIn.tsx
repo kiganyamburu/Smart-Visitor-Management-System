@@ -1,173 +1,183 @@
-import React, { useRef, useState,useContext } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
 import Webcam from "react-webcam";
 import jsQR from "jsqr";
-import { FaCheckCircle, FaTimesCircle, FaCamera, FaSyncAlt } from "react-icons/fa";
-import ClipLoader from "react-spinners/ClipLoader";
+import { Card, Button, Spin, Alert } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined, SyncOutlined } from "@ant-design/icons";
 import { DepartmentContext } from "../../contexts/DepartmentContext";
 
 interface User {
-    name: string;
-    department: string;
+  name: string;
+  department: string;
 }
 
 interface QrCodeResponse {
-    code: string;
-    valid: boolean;
-    name?: User;
+  code: string;
+  valid: boolean;
+  name?: User;
 }
-
 const AutoCheckIn: React.FC = () => {
-    const { department } = useContext(DepartmentContext);
-    const [qrCode, setQrCode] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(false);
-    const [message, setMessage] = useState<string | null>(null);
-    const [capturing, setCapturing] = useState<boolean>(false);
-    const webcamRef = useRef<Webcam>(null);
+  const { department } = useContext(DepartmentContext);
+  const [qrCode, setQrCode] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [messageText, setMessageText] = useState<string | null>(null);
+  const webcamRef = useRef<Webcam>(null);
+  const scanningIntervalRef = useRef<number | null>(null);
 
-    const checkInUser = async (urlcode: string): Promise<void> => {
-        //console.log("Checking in user with QR code:", urlcode);
-        setLoading(true);
-        setMessage(null);
+  useEffect(() => {
+    startScanning();
+    return stopScanning;
+  }, []);
 
-        return fetch(`${urlcode}/checkin`, {
-            method: "GET",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-        })
-            .then((response) => {
-                console.log("Response:", response);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("Invalid response: Expected JSON but received something else.");
-                }
-                return response.json();
-            })
-            .then((data: QrCodeResponse) => {
-                //console.log("Parsed JSON response:", data);
-                if (data && data.name) {
-                    setMessage(`✅ Welcome, ${data.name}! You just Checked-In to ${department} department.`);
-                } else {
-                    setMessage("❌ Invalid QR Code");
-                }
-            })
-            .catch((error) => {
-                console.error("Error checking in:", error);
-                setMessage("❌ System error, please try again.");
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+  const startScanning = () => {
+    if (scanningIntervalRef.current !== null) return; // already scanning
+    scanningIntervalRef.current = window.setInterval(scanFrame, 500);
+  };
+
+  const stopScanning = () => {
+    if (scanningIntervalRef.current !== null) {
+      clearInterval(scanningIntervalRef.current);
+      scanningIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (qrCode && !loading) {
+      stopScanning(); // stop scan temporarily
+      setMessageText(null);
+      checkInUser(qrCode);
+    }
+  }, [qrCode]);
+
+  const scanFrame = () => {
+    setMessageText(null);
+    if (!webcamRef.current) return;
+    const imageSrc = webcamRef.current.getScreenshot();
+    if (!imageSrc) return;
+
+    const img = new Image();
+    img.src = imageSrc;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      const imageData = ctx.getImageData(0, 0, img.width, img.height);
+      const qrCodeData = jsQR(imageData.data, img.width, img.height);
+      if (qrCodeData) {
+        setQrCode(qrCodeData.data);
+      }
     };
+  };
 
-    // Function to capture the image from the webcam and scan for a QR code
-    const captureAndScan = async () => {
-        if (!webcamRef.current) return;
-        setCapturing(true);
-        setMessage(null);
+  const checkInUser = async (urlcode: string): Promise<void> => {
+    setLoading(true);
+    setMessageText(null);
 
-        const imageSrc = webcamRef.current.getScreenshot();
-        if (!imageSrc) {
-            setMessage("❌ Failed to capture image");
-            setCapturing(false);
-            return;
-        }
+    try {
+      const response = await fetch(`${urlcode}/checkin`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
 
-        const img = new Image();
-        img.src = imageSrc;
-        img.onload = () => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            if (!ctx) {
-                setMessage("❌ Unable to process image");
-                setCapturing(false);
-                return;
-            }
+      if (response.status === 200) {
+        const data: QrCodeResponse = await response.json();
+        setMessageText(`✅ Welcome, ${data.name}! You just Checked-In to ${department} department.`);
+      } else {
+        setMessageText(`❌ Invalid QR code or already checked in.`);
+      }
+    } catch (error) {
+      console.error("Error checking in:", error);
+      setMessageText("❌ System error, please try again.");
+    } finally {
+      setLoading(false);
+      timeout(() => {
+        setQrCode("");       // Clear scanned code
+        setMessageText(null); // Optional
+        startScanning();     // 🔁 Restart scanning
+      }, 7000); // Delay before resuming scan
+    }
+  };
 
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0, img.width, img.height);
 
-            const imageData = ctx.getImageData(0, 0, img.width, img.height);
-            const qrCodeData = jsQR(imageData.data, img.width, img.height);
-            //console.log("QR Code Data:", qrCodeData);
-
-            if (qrCodeData) {
-                // QR Code detected
-                setQrCode(qrCodeData.data);
-                checkInUser(qrCodeData.data);
-            } else {
-                // No QR code found
-                setMessage("❌ No QR Code detected");
-            }
-            setCapturing(false);
-        };
-
-        img.onerror = () => {
-            setMessage("❌ Error loading captured image");
-            setCapturing(false);
-        };
-    };
-
-    return (
-        <div className=" mx-auto mt-10 md:p-6 p-2 rounded-lg border border-gray-200 bg-gradient-to-r from-slate-200 to-slate-300 text-white shadow-lg">
-            <h2 className="text-2xl font-semibold text-center text-gray-800">🎫 Auto Check-In</h2>
-
-            <div className="mt-2 relative">
-                <p className="text-sm text-gray-300 text-center">Capture QR Code:</p>
-                <div className="bg-gray-100 p-2 rounded-md relative shadow-md border border-gray-600">
-                    <Webcam
-                        audio={false}
-                        ref={webcamRef}
-                        screenshotFormat="image/png"
-                        videoConstraints={{ facingMode: "environment" }}
-                        className="w-full rounded-md"
-                    />
-                    <button
-                        onClick={captureAndScan}
-                        className={`absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 transition ${capturing ? "opacity-50 cursor-not-allowed" : ""}`}
-                        disabled={capturing}
-                    >
-                        <FaCamera size={24} />
-                    </button>
-                </div>
-            </div>
-
-            {loading && (
-                <div className="mt-4 flex justify-center">
-                    <ClipLoader color="#60a5fa" size={30} />
-                </div>
-            )}
-
-            {qrCode && (
-                <div className="mt-4 hidden p-3 bg-blue-600 rounded-md flex items-center gap-2 border border-blue-500">
-                    <p className="text-white">
-                        Scanned QR Code: <strong>{qrCode}</strong>
-                    </p>
-                </div>
-            )}
-
-            {message && (
-                <div className={`mt-4 p-3 rounded-md flex items-center gap-2 border ${message.includes("✅") ? "bg-green-600 border-green-500" : "bg-red-600 border-red-500"}`}>
-                    {message.includes("✅") ? <FaCheckCircle className="text-white text-xl" /> : <FaTimesCircle className="text-white text-xl" />}
-                    <p className="text-white">{message}</p>
-                </div>
-            )}
-
-            <div className="mt-6 flex justify-center">
-                <button
-                    onClick={() => window.location.reload()}
-                    className="bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-blue-900 transition"
-                >
-                    <FaSyncAlt /> Refresh Scanner
-                </button>
-            </div>
+  return (
+    <Card
+      title="Auto Check-In"
+      style={{ maxWidth: 600, margin: "20px auto", textAlign: "center" }}
+      headStyle={{ background: "#f0f2f5", fontWeight: "bold" }}
+    >
+      <p style={{ marginBottom: 16, color: "#595959" }}>
+        Place QR Code in view to auto-scan:
+      </p>
+      <div style={{ position: "relative" }}>
+        <div
+          style={{
+            border: "1px solid #d9d9d9",
+            borderRadius: 4,
+            overflow: "hidden",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          }}
+        >
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/png"
+            videoConstraints={{ facingMode: "environment" }}
+            style={{ width: "100%" }}
+          />
         </div>
-    );
+      </div>
+
+      {loading && (
+        <div style={{ marginTop: 16 }}>
+          <Spin size="large" tip="Processing..." />
+        </div>
+      )}
+
+      {qrCode && (
+        <Alert
+          style={{ marginTop: 16 }}
+          message={`Scanned QR Code: ${qrCode}`}
+          type="info"
+          showIcon
+        />
+      )}
+
+      {messageText && (
+        <Alert
+          style={{ marginTop: 16 }}
+          message={messageText}
+          type={messageText.includes("✅") ? "success" : "error"}
+          icon={
+            messageText.includes("✅") ? (
+              <CheckCircleOutlined />
+            ) : (
+              <CloseCircleOutlined />
+            )
+          }
+          showIcon
+        />
+      )}
+
+      <div style={{ marginTop: 24 }}>
+        <Button
+          type="default"
+          icon={<SyncOutlined />}
+          onClick={() => window.location.reload()}
+        >
+          Refresh Scanner
+        </Button>
+      </div>
+    </Card>
+  );
 };
 
 export default AutoCheckIn;
+
+function timeout(callback: () => void, delay: number) {
+  setTimeout(callback, delay);
+}

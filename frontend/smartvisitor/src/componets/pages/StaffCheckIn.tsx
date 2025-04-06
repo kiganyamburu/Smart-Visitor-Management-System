@@ -1,28 +1,21 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import axios from "axios";
-import ClipLoader from "react-spinners/ClipLoader";
-import { DepartmentContext } from "../../contexts/DepartmentContext"; // Adjust path as needed
+import { Form, Input, Select, Button, Card, Modal, Spin, Typography, Row, Col } from "antd";
+import { DepartmentContext } from "../../contexts/DepartmentContext";
+
+const { Option } = Select;
+const { Title, Text } = Typography;
 
 const StaffCheckIn: React.FC = () => {
-  // Get the department from context
   const { department: contextDepartment } = useContext(DepartmentContext);
-
-  // Form states
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [idType, setIdType] = useState("NATIONAL_ID");
-  const [idNumber, setIdNumber] = useState("");
-  const [gender, setGender] = useState("");
+  const [form] = Form.useForm();
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-
-  // Camera refs and state
+  const [cameraActive, setCameraActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [cameraActive, setCameraActive] = useState(false);
 
   useEffect(() => {
     if (cameraActive) {
@@ -56,7 +49,11 @@ const StaffCheckIn: React.FC = () => {
     if (videoRef.current && canvasRef.current) {
       const ctx = canvasRef.current.getContext("2d");
       if (ctx) {
-        ctx.drawImage(videoRef.current, 0, 0, 300, 200);
+        const width = videoRef.current.videoWidth || 300;
+        const height = videoRef.current.videoHeight || 200;
+        canvasRef.current.width = width;
+        canvasRef.current.height = height;
+        ctx.drawImage(videoRef.current, 0, 0, width, height);
         const capturedImage = canvasRef.current.toDataURL("image/png");
         setImage(capturedImage);
         stopCamera();
@@ -75,22 +72,27 @@ const StaffCheckIn: React.FC = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    // Ensure all fields are provided
-    if (!fullName || !email || !phoneNumber || !idNumber || !gender || !image) {
+  const handleSubmit = async (values: any) => {
+    if (
+      !values.fullName ||
+      !values.email ||
+      !values.phoneNumber ||
+      !values.idNumber ||
+      !values.gender ||
+      !image
+    ) {
       setModalMessage("⚠️ Please fill all fields, select gender, and take a photo.");
       setModalVisible(true);
       return;
     }
 
     const staffData = {
-      name: fullName,
-      email,
-      phoneNumber,
-      idType,
-      idNumber,
-      gender,
-      // Using the department from context
+      name: values.fullName,
+      email: values.email,
+      phoneNumber: values.phoneNumber,
+      idType: values.idType,
+      idNumber: values.idNumber,
+      gender: values.gender,
       department: contextDepartment,
       imageUrl: image,
       checkInTime: new Date().toISOString(),
@@ -99,20 +101,12 @@ const StaffCheckIn: React.FC = () => {
 
     try {
       setLoading(true);
-      // Replace with your actual backend endpoint.
       const response = await axios.post(
-        "https://5cdf-102-213-241-210.ngrok-free.app/api/v1/staff",
+        "https://backend-lingering-flower-8936.fly.dev/api/v1/staff",
         staffData
       );
-      console.log("staff data",staffData)
       setModalMessage(`✅ ${response.data.message || "Check-in successful! Welcome."}`);
-      // Reset fields
-      setFullName("");
-      setEmail("");
-      setPhoneNumber("");
-      setIdNumber("");
-      setIdType("NATIONAL_ID");
-      setGender("");
+      form.resetFields();
       setImage(null);
       setCameraActive(false);
     } catch (error: any) {
@@ -127,127 +121,158 @@ const StaffCheckIn: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:p-6 p-2">
-      <div className="w-full max-w-2xl bg-white bg-opacity-30 backdrop-blur-md rounded-xl shadow-2xl md:p-8 p-3">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">🛂 Staff Check-In</h2>
-        {/* Input Fields */}
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="w-full p-3 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        />
-        <input
-          type="text"
-          placeholder="Phone Number"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-          className="w-full p-3 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        />
-        <select
-          value={idType}
-          onChange={(e) => setIdType(e.target.value)}
-          className="w-full p-3 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        >
-          <option value="NATIONAL_ID">National ID</option>
-          <option value="PASSPORT">Passport</option>
-          <option value="DRIVER_LICENSE">Driver's License</option>
-        </select>
-        <input
-          type="text"
-          placeholder="ID Number"
-          value={idNumber}
-          onChange={(e) => setIdNumber(e.target.value)}
-          className="w-full p-3 mb-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        />
-        {/* Gender Selector */}
-        <select
-          value={gender}
-          onChange={(e) => setGender(e.target.value)}
-          className="w-full p-3 mb-5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        >
-          <option value="" disabled>
-            Select Gender
-          </option>
-          <option value="MALE">Male</option>
-          <option value="FEMALE">Female</option>
-          <option value="OTHER">Other</option>
-        </select>
-        {/* Department (Read-Only from Context) */}
-        <div className="w-full p-3 mb-5 border border-gray-300 rounded bg-gray-100 text-gray-700">
-          Department: <span className="font-semibold">{contextDepartment}</span>
-        </div>
-
-        {/* Camera & Image Capture */}
-        <div className="flex flex-col items-center">
-          {!cameraActive && !image && (
-            <button
-              onClick={toggleCamera}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition transform hover:scale-105"
+    <Row justify="center" style={{ padding: "24px" }}>
+      <Col xs={24} sm={22} md={20} lg={18}>
+        <Card bordered={false} style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>
+          <Title level={3} style={{ textAlign: "center", marginBottom: "24px" }}>
+            🛂 Staff Check-In
+          </Title>
+          {/* Form Section arranged in flex rows */}
+          <Form form={form} layout="vertical" onFinish={handleSubmit}>
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Full Name"
+                  name="fullName"
+                  rules={[{ required: true, message: "Please enter full name" }]}
+                >
+                  <Input placeholder="Enter full name" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Email"
+                  name="email"
+                  rules={[
+                    { required: true, message: "Please enter email" },
+                    { type: "email", message: "Invalid email" },
+                  ]}
+                >
+                  <Input placeholder="Enter email" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Phone Number"
+                  name="phoneNumber"
+                  rules={[{ required: true, message: "Please enter phone number" }]}
+                >
+                  <Input placeholder="Enter phone number" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="ID Type"
+                  name="idType"
+                  initialValue="NATIONAL_ID"
+                  rules={[{ required: true, message: "Please select ID type" }]}
+                >
+                  <Select>
+                    <Option value="NATIONAL_ID">National ID</Option>
+                    <Option value="PASSPORT">Passport</Option>
+                    <Option value="DRIVER_LICENSE">Driver's License</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="ID Number"
+                  name="idNumber"
+                  rules={[{ required: true, message: "Please enter ID number" }]}
+                >
+                  <Input placeholder="Enter ID number" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Gender"
+                  name="gender"
+                  rules={[{ required: true, message: "Please select gender" }]}
+                >
+                  <Select placeholder="Select Gender">
+                    <Option value="MALE">Male</Option>
+                    <Option value="FEMALE">Female</Option>
+                    <Option value="OTHER">Other</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Form.Item label="Department">
+              <Input value={contextDepartment} disabled />
+            </Form.Item>
+            {/* Camera Section at the bottom center */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                marginTop: "20px",
+                marginBottom: "20px",
+              }}
             >
-              📸 Open Camera
-            </button>
-          )}
-          {cameraActive && (
-            <>
-              <div className="relative border-4 border-green-500 rounded-lg overflow-hidden">
-                <video ref={videoRef} autoPlay className="w-72 h-48 object-cover"></video>
-              </div>
-              <canvas ref={canvasRef} width={300} height={200} className="hidden"></canvas>
-              <button
-                onClick={captureImage}
-                className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md mt-3 hover:bg-green-700 transition transform hover:scale-105"
-              >
-                📷 Capture Photo
-              </button>
-            </>
-          )}
-          {image && (
-            <div className="mt-4 flex flex-col items-center">
-              <img src={image} alt="Captured" className="w-72 h-40 object-cover border rounded-lg shadow-lg" />
-              <button
-                onClick={toggleCamera}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md mt-3 hover:bg-blue-700 transition transform hover:scale-105"
-              >
-                📸 Open Camera
-              </button>
+              <Text style={{ marginBottom: "16px" }}>Photo:</Text>
+              {!cameraActive && !image && (
+                <Button type="primary" onClick={toggleCamera}>
+                  📸 Open Camera
+                </Button>
+              )}
+              {cameraActive && (
+                <>
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    style={{
+                      width: "100%",
+                      maxWidth: "300px",
+                      borderRadius: "4px",
+                      border: "1px solid #d9d9d9",
+                    }}
+                  />
+                  <canvas ref={canvasRef} style={{ display: "none" }} />
+                  <Button type="primary" onClick={captureImage} style={{ marginTop: "16px" }}>
+                    📷 Capture Photo
+                  </Button>
+                </>
+              )}
+              {image && (
+                <>
+                  <img
+                    src={image}
+                    alt="Captured"
+                    style={{
+                      width: "100%",
+                      maxWidth: "300px",
+                      borderRadius: "4px",
+                      border: "1px solid #d9d9d9",
+                    }}
+                  />
+                  <Button type="primary" onClick={toggleCamera} style={{ marginTop: "8px" }}>
+                    📸 Reopen Camera
+                  </Button>
+                </>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-700 text-white w-full py-3 rounded-lg shadow-md mt-6 hover:bg-blue-800 transition transform hover:scale-105"
-          disabled={loading}
-        >
-          {loading ? <ClipLoader color="#fff" size={20} /> : "✅ Check In"}
-        </button>
-      </div>
-
-      {/* Modal for Success / Error Message */}
-      {modalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full text-center">
-            <p className="text-xl mb-4">{modalMessage}</p>
-            <button
-              onClick={() => setModalVisible(false)}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-            >
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block disabled={loading}>
+                {loading ? <Spin /> : "✅ Check In"}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+        <Modal visible={modalVisible} footer={null} onCancel={() => setModalVisible(false)}>
+          <div style={{ textAlign: "center" }}>
+            <Text style={{ fontSize: "16px" }}>{modalMessage}</Text>
+            <Button type="primary" onClick={() => setModalVisible(false)} style={{ marginTop: "16px" }}>
               Close
-            </button>
+            </Button>
           </div>
-        </div>
-      )}
-    </div>
+        </Modal>
+      </Col>
+    </Row>
   );
 };
 
