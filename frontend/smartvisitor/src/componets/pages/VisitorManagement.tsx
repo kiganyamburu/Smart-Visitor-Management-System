@@ -66,7 +66,7 @@ export default function Management() {
       style={{
         minHeight: "100vh",
         padding: 16, // reduced from 24 to 8 for minimal padding
-        maxWidth: 960,
+        maxWidth: 800,
         margin: "0 auto",
         background: "#fff",
       }}
@@ -105,8 +105,8 @@ export default function Management() {
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.5 }}
           >
-            <Row gutter={[40, 40]} justify="center"> {/* smaller gutters */}
-              <Col xs={6} md={8}>
+            <Row gutter={[20, 20]} justify="center">
+              <Col xs={12} md={8}>
                 <CheckInButton
                   label="Auto Check-In"
                   icon={<LoginOutlined />}
@@ -114,7 +114,7 @@ export default function Management() {
                   onClick={() => setActiveComponent(<AutoCheckIn />)}
                 />
               </Col>
-              <Col xs={6} md={8}>
+              <Col xs={12} md={8}>
                 <CheckInButton
                   label="Manual Check-In"
                   icon={<EditOutlined />}
@@ -122,7 +122,7 @@ export default function Management() {
                   onClick={() => setActiveComponent(<ManualCheckIn />)}
                 />
               </Col>
-              <Col xs={6} md={8}>
+              <Col xs={12} md={8}>
                 <CheckInButton
                   label="Guest Check-In"
                   icon={<HomeOutlined />}
@@ -130,7 +130,7 @@ export default function Management() {
                   onClick={() => setActiveComponent(<GuestCheckIn />)}
                 />
               </Col>
-              <Col xs={6} md={8}>
+              <Col xs={12} md={8}>
                 <CheckInButton
                   label="Staff Check-In"
                   icon={<IdcardOutlined />}
@@ -138,7 +138,7 @@ export default function Management() {
                   onClick={() => setActiveComponent(<StaffCheckIn />)}
                 />
               </Col>
-              <Col xs={6} md={8}>
+              <Col xs={12} md={8}>
                 <CheckInButton
                   label="Check Out"
                   icon={<FileTextOutlined />}
@@ -146,7 +146,7 @@ export default function Management() {
                   onClick={() => setActiveComponent(<VisitorLog />)}
                 />
               </Col>
-              <Col xs={6} md={8}>
+              <Col xs={12} md={8}>
                 <CheckInButton
                   label="Pre Register"
                   icon={<UserAddOutlined />}
@@ -155,6 +155,7 @@ export default function Management() {
                 />
               </Col>
             </Row>
+
           </motion.div>
         )}
       </AnimatePresence>

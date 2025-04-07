@@ -59,7 +59,7 @@ const AutoCheckOut: React.FC = () => {
 
   // Process a single frame from the webcam to detect a QR code.
   const scanFrame = () => {
-    setMessage(null);
+    //setMessage(null);
     if (!webcamRef.current) return;
     const imageSrc = webcamRef.current.getScreenshot();
     if (!imageSrc) return;
@@ -143,7 +143,7 @@ const AutoCheckOut: React.FC = () => {
   };
 
   return (
-    <Row justify="center" style={{ padding: "24px" }}>
+    <Row justify="center" style={{ padding: "10px" }}>
       <Col xs={24} sm={20} md={16} lg={12}>
         <Card
           title={<Title level={3}>🚪 Auto Checkout</Title>}

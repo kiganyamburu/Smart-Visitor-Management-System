@@ -114,7 +114,7 @@ const GuestCheckIn: React.FC = () => {
   };
 
   return (
-    <Card className="max-w-4xl mx-auto mt-6 shadow-lg">
+    <Card className="max-w-2xl mx-auto mt-6 shadow-lg">
       <Title level={3} className="text-center">🛂 Guest Check-In</Title>
 
       {successMessage && (
@@ -197,8 +197,8 @@ const GuestCheckIn: React.FC = () => {
           <Col xs={24}>
             {cameraActive ? (
               <div className="flex flex-col items-center">
-                <video ref={videoRef} className="w-80 h-60 border rounded-md" />
-                <Button type="primary" className="mt-2" onClick={capturePhoto} icon={<CameraOutlined />}>Capture Photo</Button>
+                <video ref={videoRef} className="w-80 h-60 border rounded-md hidden" />
+                <Button type="primary" className="mt-2 hidden" onClick={capturePhoto} icon={<CameraOutlined />}>Capture Photo</Button>
                 <Button danger className="mt-2" onClick={stopCamera}>Stop Camera</Button>
               </div>
             ) : capturedImage ? (

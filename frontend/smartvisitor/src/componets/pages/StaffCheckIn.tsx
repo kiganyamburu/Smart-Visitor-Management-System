@@ -121,7 +121,8 @@ const StaffCheckIn: React.FC = () => {
   };
 
   return (
-    <Row justify="center" style={{ padding: "24px" }}>
+    <div className="max-w-2xl mx-auto mt-6 shadow-lg">
+    <Row justify="center" style={{ padding: "30px",width: "100%" }}>
       <Col xs={24} sm={22} md={20} lg={18}>
         <Card bordered={false} style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>
           <Title level={3} style={{ textAlign: "center", marginBottom: "24px" }}>
@@ -273,6 +274,7 @@ const StaffCheckIn: React.FC = () => {
         </Modal>
       </Col>
     </Row>
+    </div>
   );
 };
 

@@ -83,7 +83,7 @@ const ManualCheckIn: React.FC = () => {
   return (
     <div className="min-h-screen md:p-6 p-2 bg-gradient-to-br from-purple-100 to-white">
       <Card
-        className="w-full max-w-[1200px] mx-auto"
+        className=" max-w-[700px] mx-auto"
         bordered={false}
         style={{
           boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
