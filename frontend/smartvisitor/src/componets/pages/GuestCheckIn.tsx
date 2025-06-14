@@ -1,183 +1,237 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import axios from "axios";
-import ClipLoader from "react-spinners/ClipLoader";
+import { DepartmentContext } from "../../contexts/DepartmentContext";
+import { Button, Form, Input, Select, Card, Typography, message, Row, Col } from "antd";
+import { CameraOutlined, ReloadOutlined } from "@ant-design/icons";
+
+
+const { Option } = Select;
+const { Title } = Typography;
 
 interface GuestCheckInData {
-    visitorId: string;
-    name: string;
-    email: string;
-    phone: string;
-    idType: "NATIONAL_ID" | "PASSPORT" | "DRIVER_LICENSE";
-    idNumber: string;
-    // imageUrl: string;
-    qrCode: string;
-    checkInTime: string;
-    checkOutTime: string;
-    status: "CHECKED_IN";
-    // hostId: string;
-    role: "GUEST";
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  idType: "NATIONAL_ID" | "PASSPORT" | "DRIVER_LICENSE";
+  idNumber: string;
+  imageUrl?: string;
+  qrCode: string;
+  checkInTime: string;
+  checkOutTime: string;
+  status: "CHECKED_IN";
+  role: "GUEST";
+  gender: string;
+  department: string;
 }
 
 const GuestCheckIn: React.FC = () => {
-    const [formData, setFormData] = useState<GuestCheckInData>({
-        visitorId: "",
-        name: "",
-        email: "",
-        phone: "",
-        idType: "NATIONAL_ID",
-        idNumber: "",
-        // imageUrl: "",
-        qrCode: "",
-        checkInTime: new Date().toISOString(),
-        checkOutTime: "",
-        status: "CHECKED_IN",
-        // hostId: "",
-        role: "GUEST",
-    });
+  const { department } = useContext(DepartmentContext);
 
-    const [loading, setLoading] = useState<boolean>(false);
-    const [message, setMessage] = useState<string | null>(null);
-    const [cameraActive, setCameraActive] = useState<boolean>(false);
-    const videoRef = useRef<HTMLVideoElement | null>(null);
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const streamRef = useRef<MediaStream | null>(null);
+  const initialData: GuestCheckInData = {
+    id: "",
+    name: "",
+    email: "",
+    phone: "",
+    idType: "NATIONAL_ID",
+    idNumber: "",
+    qrCode: "",
+    checkInTime: new Date().toISOString(),
+    checkOutTime: "",
+    status: "CHECKED_IN",
+    role: "GUEST",
+    gender: "",
+    department,
+  };
 
-    // Handle Form Input Changes
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+  const [formData, setFormData] = useState<GuestCheckInData>(initialData);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
-    // Start Camera
-    const startCamera = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-                videoRef.current.play();
-                streamRef.current = stream;
-                setCameraActive(true);
-            }
-        } catch (error) {
-            console.error("Camera access denied:", error);
-            setMessage("❌ Camera access denied. Please allow camera permissions.");
-        }
-    };
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
-    // Capture Image and Stop Camera
-    const capturePhoto = () => {
-        if (canvasRef.current && videoRef.current) {
-            const context = canvasRef.current.getContext("2d");
-            if (context) {
-                context.drawImage(videoRef.current, 0, 0, 320, 240);
-                // Stop Camera
-                stopCamera();
-            }
-        }
-    };
+  const handleChange = (changed: Partial<GuestCheckInData>) => {
+    setFormData((prev) => ({ ...prev, ...changed }));
+  };
 
-    // Stop Camera
-    const stopCamera = () => {
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach((track) => track.stop());
-            streamRef.current = null;
-        }
-        setCameraActive(false);
-    };
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        streamRef.current = stream;
+        setCameraActive(true);
+      }
+    } catch (err) {
+      message.error("Camera access denied");
+    }
+  };
 
-    // Cleanup Camera on Unmount
-    useEffect(() => {
-        return () => stopCamera();
-    }, []);
+  const stopCamera = () => {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    setCameraActive(false);
+  };
 
-    // Handle Form Submission
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setMessage(null);
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0, 320, 240);
+        const imageData = canvasRef.current.toDataURL("image/png");
+        setCapturedImage(imageData);
+        setFormData((prev) => ({ ...prev, imageUrl: imageData }));
+        stopCamera();
+      }
+    }
+  };
 
-        try {
-            const response = await axios.post("https://backend-lingering-flower-8936.fly.dev/api/v1/visitor/guest-checkin", formData);
-            setMessage(`✅ ${formData.name} has been checked in successfully!`);
-            setFormData({
-                visitorId: "",
-                name: "",
-                email: "",
-                phone: "",
-                idType: "NATIONAL_ID",
-                idNumber: "",
-                // imageUrl: "",
-                qrCode: "",
-                checkInTime: new Date().toISOString(),
-                checkOutTime: "",
-                status: "CHECKED_IN",
-                // hostId: "",
-                role: "GUEST",
-            });
-            console.log(response);
-        } catch (error) {
-            console.error("Guest Check-in Failed:", error);
-            setMessage("❌ Error checking in. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+  useEffect(() => () => stopCamera(), []);
 
-    return (
-        <div className="max-w-lg mx-auto mt-10 p-6 bg-gray-50 shadow-lg rounded-lg border border-gray-200">
-            <h2 className="text-2xl font-semibold text-center text-gray-700">🛂 Guest Check-In</h2>
+  const handleSubmit = async () => {
+    setLoading(true);
+    setSuccessMessage(null);
 
-            {/* Success/Error Message */}
-            {message && (
-                <div className={`mt-4 p-3 rounded-md text-center border ${message.includes("✅") ? "bg-green-100 text-green-700 border-green-300" : "bg-red-100 text-red-700 border-red-300"}`}>
-                    {message}
-                </div>
-            )}
+    try {
+      const payload = { ...formData, department };
+      await axios.post(
+        "https://backend-lingering-flower-8936.fly.dev/api/v1/visitor/guest-checkin",
+        payload
+      );
+      setSuccessMessage(`✅ ${formData.name} checked in successfully!`);
+      setFormData({ ...initialData, department });
+      setCapturedImage(null);
+    } catch (err) {
+      message.error("❌ Error checking in. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            {/* Check-in Form */}
-            <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-                <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" required className="w-full p-2 border rounded-md" />
-                
-                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required className="w-full p-2 border rounded-md" />
-                
-                <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" required className="w-full p-2 border rounded-md" />
-                
-                <select name="idType" value={formData.idType} onChange={handleChange} className="w-full p-2 border rounded-md">
-                    <option value="NATIONAL_ID">National ID</option>
-                    <option value="PASSPORT">Passport</option>
-                    <option value="DRIVER_LICENSE">Driver's License</option>
-                </select>
-                
-                <input type="text" name="idNumber" value={formData.idNumber} onChange={handleChange} placeholder="ID Number" required className="w-full p-2 border rounded-md" />
-                
-                {/* <input type="text" name="hostId" value={formData.hostId} onChange={handleChange} placeholder="Host ID" required className="w-full p-2 border rounded-md" /> */}
+  return (
+    <Card className="max-w-2xl mx-auto mt-6 shadow-lg">
+      <Title level={3} className="text-center">🛂 Guest Check-In</Title>
 
-                {/* Photo Capture Section */}
-                {cameraActive ? (
-                    <div className="flex flex-col items-center">
-                        <video ref={videoRef} autoPlay className="w-64 h-48 border rounded-md"></video>
-                        <button type="button" onClick={capturePhoto} className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-                            📸 Capture Photo
-                        </button>
-                        <button type="button" onClick={stopCamera} className="mt-2 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">
-                            ❌ Stop Camera
-                        </button>
-                    </div>
-                ) : (
-                    <button type="button" onClick={startCamera} className="hidden w-full bg-gray-700 text-white p-2 rounded-md hover:bg-gray-800 transition">
-                        📷 Open Camera
-                    </button>
-                )}
-
-
-                {/* Loading State */}
-                <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition flex justify-center items-center gap-2">
-                    {loading ? <ClipLoader color="#fff" size={20} /> : "Check In"}
-                </button>
-            </form>
-
-            <canvas ref={canvasRef} width="320" height="240" className="hidden"></canvas>
+      {successMessage && (
+        <div className="my-4 p-3 rounded-md text-center bg-green-100 text-green-700">
+          {successMessage}
         </div>
-    );
+      )}
+
+      <Form layout="vertical" onFinish={handleSubmit}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} md={12}>
+            <Form.Item label="Full Name" required>
+              <Input
+                value={formData.name}
+                onChange={(e) => handleChange({ name: e.target.value })}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} md={12}>
+            <Form.Item label="Email" required>
+              <Input
+                value={formData.email}
+                type="email"
+                onChange={(e) => handleChange({ email: e.target.value })}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} md={12}>
+            <Form.Item label="Phone Number" required>
+              <Input
+                value={formData.phone}
+                onChange={(e) => handleChange({ phone: e.target.value })}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} md={12}>
+            <Form.Item label="ID Type" required>
+              <Select
+                value={formData.idType}
+                onChange={(value) => handleChange({ idType: value })}
+              >
+                <Option value="NATIONAL_ID">National ID</Option>
+                <Option value="PASSPORT">Passport</Option>
+                <Option value="DRIVER_LICENSE">Driver's License</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} md={12}>
+            <Form.Item label="ID Number" required>
+              <Input
+                value={formData.idNumber}
+                onChange={(e) => handleChange({ idNumber: e.target.value })}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} md={6}>
+            <Form.Item label="Gender" required>
+              <Select
+                value={formData.gender}
+                onChange={(value) => handleChange({ gender: value })}
+              >
+                <Option value="MALE">Male</Option>
+                <Option value="FEMALE">Female</Option>
+                <Option value="OTHER">Other</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} md={6}>
+            <Form.Item label="Department">
+              <Input value={department} readOnly disabled />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24}>
+            {cameraActive ? (
+              <div className="flex flex-col items-center">
+                <video ref={videoRef} className="w-80 h-60 border rounded-md hidden" />
+                <Button type="primary" className="mt-2 hidden" onClick={capturePhoto} icon={<CameraOutlined />}>Capture Photo</Button>
+                <Button danger className="mt-2" onClick={stopCamera}>Stop Camera</Button>
+              </div>
+            ) : capturedImage ? (
+              <div className="flex flex-col items-center">
+                <img src={capturedImage} className="w-80 h-60 object-cover rounded-md border" />
+                <Button className="mt-2" icon={<ReloadOutlined />} onClick={() => {
+                  setCapturedImage(null);
+                  handleChange({ imageUrl: "" });
+                  startCamera();
+                }}>
+                  Retake Photo
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={startCamera} className="w-full" icon={<CameraOutlined />}>Open Camera</Button>
+            )}
+            <canvas ref={canvasRef} width="320" height="240" className="hidden" />
+          </Col>
+
+          <Col span={24}>
+            <Button
+              htmlType="submit"
+              type="primary"
+              loading={loading}
+              className="w-full"
+            >
+              Check In
+            </Button>
+          </Col>
+        </Row>
+      </Form>
+    </Card>
+  );
 };
 
 export default GuestCheckIn;

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   FaUserShield,
   FaEdit,
@@ -7,12 +6,27 @@ import {
   FaEnvelope,
   FaPhone,
   FaList,
-  FaCalendarAlt,
   FaKey,
 } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
-import ClipLoader from "react-spinners/ClipLoader";
-import Modal from "react-modal";
+import {
+  Modal,
+  List,
+  Avatar,
+  Spin,
+  Button,
+  Tooltip,
+  Card,
+  Typography,
+  Space,
+  Descriptions,
+  Tag,
+  Row,
+  Col,
+  Input,
+} from "antd";
+
+const { Title, Text } = Typography;
 
 interface Authority {
   authority: string;
@@ -25,9 +39,8 @@ interface Profile {
   phoneNumber: string;
   role: "ADMIN" | "RECEPTIONIST";
   avatar?: string;
-  assignedLocation?: string; // For Receptionist
   authorities: Authority[];
-  dateJoined?: string;
+  dateJoined: string;
 }
 
 interface ActivityLog {
@@ -45,29 +58,37 @@ const AdminProfile = () => {
   const [password, setPassword] = useState<string>("");
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
+  const dummyLogs: ActivityLog[] = [
+    { id: "1", action: "Updated profile information", timestamp: "2025-04-05 14:30" },
+    { id: "2", action: "Logged in", timestamp: "2025-04-05 14:00" },
+    { id: "3", action: "Changed password", timestamp: "2025-04-05 13:50" },
+    { id: "4", action: "Viewed user details", timestamp: "2025-04-05 13:40" },
+    { id: "5", action: "Created new post", timestamp: "2025-04-05 13:30" },
+    { id: "6", action: "Updated role permissions", timestamp: "2025-04-05 13:20" },
+    { id: "7", action: "Logged out", timestamp: "2025-04-05 13:10" },
+  ];
+
   useEffect(() => {
     if (user) {
-      const role = user.role;
-      const profileEndpoint = role === "super_admin" 
-        ? `http://localhost:3000/api/admin/profile/${user.id}`
-        : `/api/receptionist/profile/${user.id}`;
-      const logsEndpoint = role === "super_admin"
-        ? `http://localhost:3000/api/admin/logs/${user.id}`
-        : `/api/receptionist/logs/${user.id}`;
+      fetch(`https://backend-lingering-flower-8936.fly.dev/api/v1/admin/${user.id}`)
+        .then(response => {
+          if (!response.ok) {
+            console.error("HTTP error, status =", response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log("Fetched profile data:", data);
+          setProfile(data);
+        })
+        .catch(error => console.error("Profile fetch error:", error));
 
-      axios
-        .get(profileEndpoint)
-        .then((response) => setProfile(response.data))
-        .catch((error) => console.error("Error fetching profile:", error));
-
-      axios
-        .get(logsEndpoint)
-        .then((response) => setActivityLogs(response.data))
-        .catch((error) => console.error("Error fetching logs:", error));
-
+      // Use dummy activity logs for now
+      setActivityLogs(dummyLogs);
       setIsLoading(false);
     }
   }, [user]);
+
 
   const handleAuthSubmit = () => {
     if (password === "admin123") {
@@ -78,119 +99,122 @@ const AdminProfile = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-blue-100 min-h-screen p-8 rounded-2xl shadow-xl w-full mx-auto">
-      {isLoading ? (
-        <ClipLoader color="#4A90E2" size={50} />
-      ) : (
-        <>
-          {/* Profile Header */}
-          <div className="flex items-center border-b pb-6 mb-4 shadow-xl p-4 rounded-lg">
-            <img
+    <div style={{ padding: 4, background: "#f0f2f5", minHeight: "100vh" }}>
+      <Card bordered={false} style={{ marginBottom: 24 }}>
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} sm={6}>
+            <Avatar
+              size={100}
               src={profile?.avatar || "https://via.placeholder.com/100"}
-              alt="User Avatar"
-              className="w-20 h-20 rounded-full border-4 border-indigo-500 shadow-md"
+              style={{ border: "2px solid #d9d9d9" }}
             />
-            {isEditing}
-            <div className="ml-6">
-              <h2 className="text-2xl font-bold text-gray-800">{profile?.fullName || "User"}</h2>
-              <p className="text-gray-600 flex items-center text-lg">
-                <FaUserShield className="text-indigo-600 mr-2" />
-                {profile?.role || "System User"}
-              </p>
-            </div>
-            <button
-              className="ml-auto bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition"
-              onClick={() => setShowAuthModal(true)}
-            >
-              <FaEdit /> Edit Profile
-            </button>
-          </div>
-
-          {/* Personal Information */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Personal Information</h3>
-            <div className="grid grid-cols-2 gap-6 text-gray-600">
-              <div className="flex items-center gap-2">
-                <FaEnvelope className="text-indigo-600" />
-                <p>
-                  <span className="font-semibold">Email:</span> {profile?.email || "user@example.com"}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <FaPhone className="text-green-600" />
-                <p>
-                  <span className="font-semibold">Phone:</span> {profile?.phoneNumber || "+123456789"}
-                </p>
-              </div>
-
-              {/* Only for Receptionists */}
+          </Col>
+          <Col xs={24} sm={12}>
+            <Title level={3}>{profile?.fullName || "User"}</Title>
+            <Space direction="vertical">
+              <Text type="secondary">
+                <FaUserShield /> {profile?.role || "System User"}
+              </Text>
+              <Text type="secondary">Joined on {profile?.dateJoined}</Text>
+            </Space>
+          </Col>
+          <Col xs={24} sm={6}>
+            <Tooltip title="Edit profile settings">
+              <Button
+                type="primary"
+                icon={<FaEdit />}
+                onClick={() => setShowAuthModal(true)}
+                block
+              >
+                Edit Profile
+              </Button>
+            </Tooltip>
+          </Col>
+        </Row>
+      </Card>
+      {isEditing}
+      <Row gutter={24}>
+        {/* Contact Info */}
+        <Col xs={24} md={12}>
+          <Card title="Contact Information" bordered={false}>
+            <Descriptions column={1}>
+              <Descriptions.Item label={<span><FaEnvelope /> Email</span>}>
+                {profile?.email}
+              </Descriptions.Item>
+              <Descriptions.Item label={<span><FaPhone /> Phone</span>}>
+                {profile?.phoneNumber}
+              </Descriptions.Item>
               {profile?.role === "RECEPTIONIST" && (
-                <div className="flex items-center gap-2">
-                  <FaMapMarkerAlt className="text-red-600" />
-                  <p>
-                    <span className="font-semibold">Assigned Location:</span> {profile?.assignedLocation || "Not Assigned"}
-                  </p>
-                </div>
+                <Descriptions.Item label={<span><FaMapMarkerAlt /> Location</span>}>
+                  Reception HQ
+                </Descriptions.Item>
               )}
+            </Descriptions>
+          </Card>
+        </Col>
 
-              <div className="flex items-center gap-2">
-                <FaCalendarAlt className="text-gray-600" />
-                <p>
-                  <span className="font-semibold">Date Joined:</span> {profile?.dateJoined || "N/A"}
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* Authorities */}
+        <Col xs={24} md={12}>
+          <Card title="Access Authorities" bordered={false}>
+            {profile?.authorities?.length ? (
+              <Space wrap>
+                {profile.authorities.map((auth, index) => (
+                  <Tag icon={<FaKey />} color="geekblue" key={index}>
+                    {auth.authority}
+                  </Tag>
+                ))}
+              </Space>
+            ) : (
+              <Text type="secondary">No authorities assigned</Text>
+            )}
+          </Card>
+        </Col>
+      </Row>
 
-          {/* Authorities */}
-          <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Authorities</h3>
-            <div className="flex flex-wrap gap-3">
-              {profile?.authorities.length ? (
-                profile.authorities.map((auth, index) => (
-                  <span key={index} className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-md text-sm">
-                    <FaKey className="inline mr-1" /> {auth.authority}
-                  </span>
-                ))
-              ) : (
-                <p className="text-gray-500">No authorities assigned.</p>
-              )}
-            </div>
-          </div>
+      {/* Activity Logs */}
+      <Card title="Recent Activity" bordered={false} style={{ marginTop: 24 }}>
+        <List
+          itemLayout="horizontal"
+          dataSource={activityLogs}
+          renderItem={(log) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar icon={<FaList />} />}
+                title={log.action}
+                description={`Time: ${log.timestamp}`}
+              />
+            </List.Item>
+          )}
+        />
+      </Card>
 
-          {/* Activity Logs */}
-          <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Activity Logs</h3>
-            <div className="max-h-48 overflow-y-auto">
-              {activityLogs.length > 0 ? (
-                activityLogs.map((log) => (
-                  <div key={log.id} className="p-2 border-b border-gray-200 text-gray-600">
-                    <FaList className="inline-block text-blue-600 mr-2" /> {log.action} - {log.timestamp}
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500">No activity logs available.</p>
-              )}
-            </div>
-          </div>
-
-          {/* Authentication Modal */}
-          <Modal isOpen={showAuthModal} onRequestClose={() => setShowAuthModal(false)} className="bg-white p-6 rounded-lg shadow-lg w-96 mx-auto mt-20">
-            <h2 className="text-xl font-bold mb-4">Enter Password</h2>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className="w-full border p-2 rounded mb-4"
-            />
-            <button onClick={handleAuthSubmit} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">
-              Confirm
-            </button>
-          </Modal>
-        </>
-      )}
+      {/* Password Confirmation Modal */}
+      <Modal
+        title="Confirm Identity"
+        open={showAuthModal}
+        onCancel={() => setShowAuthModal(false)}
+        footer={null}
+        centered
+      >
+        <Input.Password
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password"
+          style={{ marginBottom: 16 }}
+        />
+        <Button type="primary" block onClick={handleAuthSubmit}>
+          Confirm
+        </Button>
+      </Modal>
     </div>
   );
 };

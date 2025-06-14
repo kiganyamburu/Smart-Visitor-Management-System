@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { format } from "date-fns";
-import { FaDownload, FaExclamationTriangle, FaSearch } from "react-icons/fa";
+import { Table, Input, DatePicker, Row, Col, Card, Statistic, Button, Alert, Spin } from "antd";
 import { CSVLink } from "react-csv";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import dummyVisitors from "../../apis/Dummy";
+import moment from "moment";
+import { FaDownload, FaExclamationTriangle } from "react-icons/fa";
+import dummyVisitors from "../../apis/Dummy"; // Dummy data in case of errors
 
 interface Visitor {
+<<<<<<< HEAD
     id: string;
     name: string;
     phone: string;
@@ -15,40 +15,53 @@ interface Visitor {
     status: "Checked In" | "Checked Out";
     location?: string;
     staff: string;
+=======
+  id: string;
+  name: string;
+  phone: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  status: "Checked In" | "Checked Out";
+  location?: string;
+  host: string;
+>>>>>>> 80646bbc76e2c5a9c301bdd6124a442957977d97
 }
 
 const AttendanceDashboard: React.FC = () => {
-    const [visitors, setVisitors] = useState<Visitor[]>([]);
-    const [filteredVisitors, setFilteredVisitors] = useState<Visitor[]>([]);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-    const [loading, setLoading] = useState(false);
+  const [visitors, setVisitors] = useState<Visitor[]>([]);
+  const [filteredVisitors, setFilteredVisitors] = useState<Visitor[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDate, setSelectedDate] = useState<moment.Moment>(moment());
+  const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        fetchVisitors();
-    }, [selectedDate]);
+  useEffect(() => {
+    fetchVisitors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate]);
 
-    const fetchVisitors = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch(`http://localhost:3000/api/visitors?date=${format(selectedDate!, "yyyy-MM-dd")}`);
-            const data = await response.json();
-            setVisitors(data);
-            setFilteredVisitors(data);
-        } catch (error) {
-            setVisitors(dummyVisitors);
-            setFilteredVisitors(dummyVisitors);
-            console.error("Error fetching visitors:", error);
-        }
-        setLoading(false);
-    };
+  const fetchVisitors = async () => {
+    setLoading(true);
+    try {
+      const dateStr = selectedDate.format("YYYY-MM-DD");
+      const response = await fetch(`http://localhost:3000/api/visitors?date=${dateStr}`);
+      const data = await response.json();
+      setVisitors(data);
+      setFilteredVisitors(data);
+    } catch (error) {
+      console.error("Error fetching visitors:", error);
+      setVisitors(dummyVisitors);
+      setFilteredVisitors(dummyVisitors);
+    }
+    setLoading(false);
+  };
 
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        const query = e.target.value.toLowerCase();
-        setFilteredVisitors(visitors.filter(visitor => visitor.name.toLowerCase().includes(query)));
-    };
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    const query = value.toLowerCase();
+    setFilteredVisitors(visitors.filter(visitor => visitor.name.toLowerCase().includes(query)));
+  };
 
+<<<<<<< HEAD
     const exportData = [
         ["Name", "Phone", "Check-in Time", "Check-out Time", "Status", "Location", "Host"],
         ...visitors.map(visitor => [
@@ -61,44 +74,100 @@ const AttendanceDashboard: React.FC = () => {
             visitor.staff
         ])
     ];
+=======
+  const exportData = [
+    ["Name", "Phone", "Check-in Time", "Check-out Time", "Status", "Location", "Host"],
+    ...visitors.map(visitor => [
+      visitor.name,
+      visitor.phone,
+      visitor.checkInTime || "N/A",
+      visitor.checkOutTime || "N/A",
+      visitor.status,
+      visitor.location || "N/A",
+      visitor.host,
+    ]),
+  ];
+>>>>>>> 80646bbc76e2c5a9c301bdd6124a442957977d97
 
-    return (
-        <div className="p-6 bg-white min-h-screen">
-            <h1 className="text-2xl font-bold mb-4">Attendance Dashboard</h1>
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text: string) => <strong>{text}</strong>,
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone",
+      key: "phone",
+    },
+    {
+      title: "Check-In Time",
+      dataIndex: "checkInTime",
+      key: "checkInTime",
+      render: (time: string) => time || "-",
+    },
+    {
+      title: "Check-Out Time",
+      dataIndex: "checkOutTime",
+      key: "checkOutTime",
+      render: (time: string) => time || "-",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status: string) => (
+        <span style={{ color: status === "Checked In" ? "#52c41a" : "#f5222d" }}>{status}</span>
+      ),
+    },
+    {
+      title: "Host",
+      dataIndex: "host",
+      key: "host",
+    },
+  ];
 
-            {/* Key Metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                <div className="p-4 bg-blue-100 text-blue-900 rounded-lg shadow">✅ Total Visitors Today: {visitors.length}</div>
-                <div className="p-4 bg-green-100 text-green-900 rounded-lg shadow">⏳ Checked-in Visitors: {visitors.filter(v => v.status === "Checked In").length}</div>
-                <div className="p-4 bg-yellow-100 text-yellow-900 rounded-lg shadow">🕒 Avg Visit Duration: 45 min</div>
-                <div className="p-4 bg-purple-100 text-purple-900 rounded-lg shadow">🏢 Frequent Hosts: John, Jane, Alex</div>
-                <div className="p-4 bg-pink-100 text-pink-900 rounded-lg shadow">📍 Visitors by Location: 3 Offices</div>
-            </div>
+  return (
+    <div style={{ padding: 24, background: "#fff", minHeight: "100vh" }}>
+      <h1 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 24, color: "#1890ff" }}>
+        Attendance Dashboard
+      </h1>
 
-            {/* Search and Filters */}
-            <div className="flex items-center mb-4 space-x-4">
-                <div className="relative">
-                    <FaSearch className="absolute left-3 top-3 text-gray-500" />
-                    <input
-                        type="text"
-                        placeholder="Search visitor..."
-                        value={searchQuery}
-                        onChange={handleSearch}
-                        className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    />
-                </div>
-                <DatePicker
-                    selected={selectedDate}
-                    onChange={(date: any) => setSelectedDate(date)}
-                    className="border p-2 rounded-md"
-                />
-                <CSVLink data={exportData} filename={`attendance_${format(selectedDate!, "yyyy-MM-dd")}.csv`}>
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded flex items-center space-x-2">
-                        <FaDownload /> <span>Export CSV</span>
-                    </button>
-                </CSVLink>
-            </div>
+      {/* Key Metrics */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} sm={12} md={4}>
+          <Card>
+            <Statistic title="Total Visitors Today" value={visitors.length} />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <Card>
+            <Statistic
+              title="Checked-In Visitors"
+              value={visitors.filter(v => v.status === "Checked In").length}
+              valueStyle={{ color: "#52c41a" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
+          <Card>
+            <Statistic title="Avg Visit Duration" value="45 min" />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card>
+            <Statistic title="Frequent Hosts" value="John, Jane, Alex" />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card>
+            <Statistic title="Visitors by Location" value="3 Offices" />
+          </Card>
+        </Col>
+      </Row>
 
+<<<<<<< HEAD
             {/* Attendance Table */}
             <table className="w-full border-collapse border border-gray-300">
                 <thead>
@@ -128,13 +197,65 @@ const AttendanceDashboard: React.FC = () => {
                     )}
                 </tbody>
             </table>
+=======
+      {/* Search and Filters */}
+      <Row gutter={16} style={{ marginBottom: 16 }} align="middle">
+        <Col xs={24} sm={12} md={8}>
+          <Input.Search
+            placeholder="Search visitor..."
+            value={searchQuery}
+            onSearch={handleSearch}
+            onChange={e => handleSearch(e.target.value)}
+            allowClear
+            size="large"
+          />
+        </Col>
+        <Col xs={24} sm={8} md={6}>
+          <DatePicker
+            value={selectedDate}
+            onChange={(date) => date && setSelectedDate(date)}
+            size="large"
+            style={{ width: "100%" }}
+          />
+        </Col>
+        <Col xs={24} sm={4} md={4}>
+          <CSVLink data={exportData} filename={`attendance_${selectedDate.format("YYYY-MM-DD")}.csv`}>
+            <Button type="primary" size="large" icon={<FaDownload />} block>
+              Export CSV
+            </Button>
+          </CSVLink>
+        </Col>
+      </Row>
+>>>>>>> 80646bbc76e2c5a9c301bdd6124a442957977d97
 
-            {/* Alerts & Notifications */}
-            <div className="mt-6 p-4 bg-red-100 text-red-900 rounded-lg shadow">
-                <FaExclamationTriangle className="inline mr-2" /> 🚨 Security Alert: 2 visitors checked in but not checked out!
-            </div>
+      {/* Attendance Table */}
+      {loading ? (
+        <div style={{ textAlign: "center", padding: 40 }}>
+          <Spin size="large" />
         </div>
-    );
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={filteredVisitors}
+          rowKey="id"
+          pagination={{ pageSize: 10 }}
+          bordered
+          size="middle"
+        />
+      )}
+
+      {/* Alerts */}
+      <div style={{ marginTop: 24 }}>
+        <Alert
+          message="Security Alert"
+          description="🚨 Security Alert: 2 visitors checked in but not checked out!"
+          type="error"
+          showIcon
+          icon={<FaExclamationTriangle style={{ color: "#ff4d4f" }} />}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default AttendanceDashboard;

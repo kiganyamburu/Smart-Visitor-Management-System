@@ -5,22 +5,25 @@ import VisitorCheck from "./Mainpages/VisitorsCheck";
 import Dashboard from "./componets/layout/Dashboard";
 import { AuthProvider } from "./contexts/AuthContext";
 import { VisitorProvider } from "./contexts/VisitorDataContext";
+import { DepartmentProvider } from "./contexts/DepartmentContext"; // Import the provider
 
-//import AdminDashboard from "../pages/AdminDashboard"; // Create a dashboard page
+
 
 const AppRoutes = () => {
   return (
     <AuthProvider>
       <VisitorProvider>
-    <Router>
-      <Routes>
-        <Route path="/login" element={<AdminLogin />} />
-         <Route path="/register" element={<AdminRegister/>} />
-         <Route path="/" element={<VisitorCheck />} />
-         <Route path="/dashboard/*" element={<Dashboard />} />
-      </Routes>
-    </Router>
-    </VisitorProvider>
+        <DepartmentProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<AdminLogin />} />
+              <Route path="/register" element={<AdminRegister />} />
+              <Route path="/" element={<VisitorCheck />} />
+              <Route path="/dashboard/*" element={<Dashboard />} />
+            </Routes>
+          </Router>
+        </DepartmentProvider>
+      </VisitorProvider>
     </AuthProvider>
   );
 };

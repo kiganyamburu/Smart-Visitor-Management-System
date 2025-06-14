@@ -1,0 +1,33 @@
+# fly.toml app configuration file for SPA hosting on Fly.io
+
+app = "smartvisitor-thrumming-glade-7213"
+primary_region = "sin"
+
+[build]
+
+# Serve static build from React/Vite with 'serve -s build'
+[env]
+  NODE_ENV = "production"
+
+[[statics]]
+  guest_path = "/app/build"
+  url_prefix = "/"
+
+[http_service]
+  internal_port = 80  # Serve runs on port 3000 by default
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  # Enable fallback routing for client-side navigation
+  [[http_service.http_handlers]]
+    type = "rewrite"
+    source = "/*"
+    destination = "/index.html"
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

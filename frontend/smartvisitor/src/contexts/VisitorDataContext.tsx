@@ -22,9 +22,9 @@ export const VisitorProvider = ({ children }: { children: React.ReactNode }) => 
 
   useEffect(() => {
     if (user) {
-      const url = user.role === "super_admin"
-        ? "/api/visitor-analysis"
-        : `/api/visitor-analysis/${user.department}`;
+      const url = user.role === "ADMIN"
+        ? "https://backend-lingering-flower-8936.fly.dev/api/visitor-analysis"
+        : `https://backend-lingering-flower-8936.fly.dev/api/visitor-analysis/${user.department}`;
       
       fetch(url)
         .then(res => res.json())

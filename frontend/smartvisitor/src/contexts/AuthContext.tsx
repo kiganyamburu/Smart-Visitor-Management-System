@@ -4,7 +4,7 @@ import  { jwtDecode } from "jwt-decode";
 interface User {
   id: string;
   name: string;
-  role: "super_admin" | "department_admin";
+  role: "ADMIN" | "user";
   department?: string; // Only for department admins
 }
 
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (token) {
       try {
         const decoded: any = jwtDecode(token);
-        console.log("Decoded token", decoded);
+       // console.log("Decoded token", decoded);
         setUser({
           id: decoded.id,
           name: decoded.sub,
